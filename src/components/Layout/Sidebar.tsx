@@ -35,6 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isOpen, onClo
     switch (user.role) {
       case 'PARENT':
         return [
+          { id: 'landing', label: 'About KidSafe', icon: Home },
           { id: 'dashboard', label: 'Dashboard', icon: Home },
           { id: 'attendance', label: 'Attendance', icon: UserCheck },
           { id: 'praise', label: 'Praise & Complaints', icon: MessageSquare },
@@ -46,6 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isOpen, onClo
         ];
       case 'TEACHER':
         return [
+          { id: 'landing', label: 'About KidSafe', icon: Home },
           { id: 'dashboard', label: 'Dashboard', icon: Home },
           { id: 'attendance', label: 'Take Attendance', icon: ClipboardList },
           { id: 'tests', label: 'Tests & Results', icon: BookOpen },
@@ -56,6 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isOpen, onClo
         ];
       case 'SCHOOL_ADMIN':
         return [
+          { id: 'landing', label: 'About KidSafe', icon: Home },
           { id: 'dashboard', label: 'Dashboard', icon: Home },
           { id: 'students', label: 'Students', icon: Users },
           { id: 'attendance', label: 'Attendance Overview', icon: UserCheck },

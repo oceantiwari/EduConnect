@@ -45,6 +45,9 @@ function App() {
 
   const renderMainContent = () => {
     switch (activeTab) {
+      case 'landing':
+        return <LandingPage onGetStarted={() => setActiveTab('dashboard')} />;
+      
       case 'dashboard':
         if (user.role === 'PARENT') return <ParentDashboard />;
         if (user.role === 'TEACHER') return <TeacherDashboard />;

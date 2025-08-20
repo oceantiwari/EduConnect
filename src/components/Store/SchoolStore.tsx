@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { ShoppingBag, Plus, Minus, ShoppingCart, Package, Filter, Search } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import CheckoutPage from './CheckoutPage';
+import OrderSuccessPage from './OrderSuccessPage';
 
 const SchoolStore: React.FC = () => {
   const { user } = useAuth();
@@ -8,6 +10,8 @@ const SchoolStore: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showCart, setShowCart] = useState(false);
+  const [currentView, setCurrentView] = useState<'store' | 'checkout' | 'success'>('store');
+  const [currentOrderId, setCurrentOrderId] = useState<string>('');
 
   const categories = [
     { id: 'all', label: 'All Items', count: 24 },
@@ -111,6 +115,63 @@ const SchoolStore: React.FC = () => {
   const getCartItemsCount = () => {
     return Object.values(cart).reduce((sum, quantity) => sum + quantity, 0);
   };
+
+  const getCartItems = () => {
+    return Object.entries(cart).map(([itemId, quantity]) => {
+      const item = storeItems.find(i => i.id === itemId);
+      return item ? {
+        id: item.id,
+        title: item.title,
+        price: item.price,
+        quantity,
+        imageUrl: item.imageUrl
+      } : null;
+    }).filter(Boolean) as Array<{
+      id: string;
+      title: string;
+      price: number;
+      quantity: number;
+      imageUrl: string;
+    }>;
+  };
+
+  const handleProceedToCheckout = () => {
+    setShowCart(false);
+    setCurrentView('checkout');
+  };
+
+  const handleOrderComplete = () => {
+    const orderId = 'ORD' + Date.now().toString().slice(-6);
+    setCurrentOrderId(orderId);
+    setCart({});
+    setCurrentView('success');
+  };
+
+  const handleContinueShopping = () => {
+    setCurrentView('store');
+  };
+
+  // Show checkout page
+  if (currentView === 'checkout') {
+    return (
+      <CheckoutPage
+        cartItems={getCartItems()}
+        total={getCartTotal()}
+        onBack={() => setCurrentView('store')}
+        onOrderComplete={handleOrderComplete}
+      />
+    );
+  }
+
+  // Show success page
+  if (currentView === 'success') {
+    return (
+      <OrderSuccessPage
+        orderId={currentOrderId}
+        onContinueShopping={handleContinueShopping}
+      />
+    );
+  }
 
   if (user?.role === 'SCHOOL_ADMIN') {
     return (
@@ -373,7 +434,12 @@ const SchoolStore: React.FC = () => {
                   <span className="text-lg font-bold text-gray-900">₹{getCartTotal()}</span>
                 </div>
                 <button className="w-full bg-orange-600 text-white py-3 rounded-lg font-medium hover:bg-orange-700 transition-colors">
+                <button
+                  onClick={handleProceedToCheckout}
+                  className="w-full bg-orange-600 text-white py-3 rounded-lg font-medium hover:bg-orange-700 transition-colors"
+                >
                   Proceed to Checkout
+                </button>
                 </button>
               </div>
             )}

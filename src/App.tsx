@@ -13,6 +13,7 @@ import SchoolStore from './components/Store/SchoolStore';
 import AnnouncementsManager from './components/Announcements/AnnouncementsManager';
 import EventsManager from './components/Events/EventsManager';
 import PerformanceTracker from './components/Performance/PerformanceTracker';
+import TestsManager from './components/Tests/TestsManager';
 
 function App() {
   const { user, isLoading } = useAuth();
@@ -73,12 +74,7 @@ function App() {
         return <EventsManager />;
       
       case 'tests':
-        return (
-          <div className="p-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Tests & Results</h1>
-            <p className="text-gray-600">Test management functionality coming soon...</p>
-          </div>
-        );
+        return <TestsManager />;
       
       case 'students':
         return (

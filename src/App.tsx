@@ -52,7 +52,7 @@ function App() {
       case 'dashboard':
         if (user.role === 'PARENT') return <ParentDashboard />;
         if (user.role === 'TEACHER') return <TeacherDashboard />;
-        if (user.role === 'SCHOOL_ADMIN') return <AdminDashboard />;
+        if (user.role === 'SCHOOL_ADMIN') return <AdminDashboard onNavigate={setActiveTab} />;
         return <ParentDashboard />;
       
       case 'attendance':

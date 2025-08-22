@@ -148,13 +148,18 @@ const AnnouncementsManager: React.FC = () => {
             <p className="text-gray-600">Send updates and announcements to parents and students</p>
           </div>
         </div>
-        <button
-          onClick={() => setShowNewAnnouncement(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          New Announcement
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowNewAnnouncement(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            New Announcement
+          </button>
+          <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+            Templates
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -205,16 +210,45 @@ const AnnouncementsManager: React.FC = () => {
         </div>
       </div>
 
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <button 
+          onClick={() => setShowNewAnnouncement(true)}
+          className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors text-center"
+        >
+          <Bell className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+          <p className="text-sm font-medium text-gray-600">Send General Announcement</p>
+        </button>
+        <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-emerald-400 hover:bg-emerald-50 transition-colors text-center">
+          <Users className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+          <p className="text-sm font-medium text-gray-600">Send to Specific Class</p>
+        </button>
+        <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-400 hover:bg-orange-50 transition-colors text-center">
+          <AlertCircle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+          <p className="text-sm font-medium text-gray-600">Emergency Alert</p>
+        </button>
+      </div>
+
       {/* Recent Announcements */}
       <div className="bg-white rounded-xl border border-gray-100">
         <div className="p-6 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">Recent Announcements</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Recent Announcements</h3>
+            <div className="flex items-center gap-2">
+              <select className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                <option value="all">All Announcements</option>
+                <option value="high">High Priority</option>
+                <option value="medium">Medium Priority</option>
+                <option value="low">Low Priority</option>
+              </select>
+            </div>
+          </div>
         </div>
         <div className="divide-y divide-gray-100">
           {announcements.map((announcement) => {
             const AudienceIcon = getAudienceIcon(announcement.audience);
             return (
-              <div key={announcement.id} className="p-6">
+              <div key={announcement.id} className="p-6 hover:bg-gray-50 transition-colors">
                 <div className="flex items-start gap-4">
                   <div className={`p-3 rounded-full ${announcement.priority === 'high' ? 'bg-red-100' : announcement.priority === 'medium' ? 'bg-orange-100' : 'bg-blue-100'}`}>
                     <Bell className={`w-6 h-6 ${announcement.priority === 'high' ? 'text-red-600' : announcement.priority === 'medium' ? 'text-orange-600' : 'text-blue-600'}`} />
@@ -222,7 +256,7 @@ const AnnouncementsManager: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <h4 className="text-lg font-semibold text-gray-900">{announcement.title}</h4>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                           announcement.priority === 'high' ? 'bg-red-100 text-red-800' :
                           announcement.priority === 'medium' ? 'bg-orange-100 text-orange-800' :
@@ -231,6 +265,14 @@ const AnnouncementsManager: React.FC = () => {
                           {announcement.priority}
                         </span>
                         <AudienceIcon className="w-4 h-4 text-gray-500" />
+                        <div className="flex items-center gap-1">
+                          <button className="px-2 py-1 text-blue-600 hover:bg-blue-50 rounded transition-colors text-xs">
+                            Edit
+                          </button>
+                          <button className="px-2 py-1 text-red-600 hover:bg-red-50 rounded transition-colors text-xs">
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                     <p className="text-gray-700 mb-3">{announcement.body}</p>

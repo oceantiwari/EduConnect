@@ -184,10 +184,15 @@ const SchoolStore: React.FC = () => {
               <p className="text-gray-600">Manage school store items and orders</p>
             </div>
           </div>
-          <button className="px-4 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition-colors flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Add Item
-          </button>
+          <div className="flex items-center gap-3">
+            <button className="px-4 py-2 bg-orange-600 text-white rounded-lg font-medium hover:bg-orange-700 transition-colors flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Add Item
+            </button>
+            <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+              Export Data
+            </button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -238,20 +243,67 @@ const SchoolStore: React.FC = () => {
           </div>
         </div>
 
+        {/* Store Items Management */}
+        <div className="bg-white rounded-xl border border-gray-100">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Store Items</h3>
+              <div className="flex items-center gap-3">
+                <select className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                  <option value="all">All Categories</option>
+                  <option value="uniforms">Uniforms</option>
+                  <option value="books">Books & Stationery</option>
+                  <option value="bags">Bags & Accessories</option>
+                  <option value="sports">Sports Items</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className="divide-y divide-gray-100">
+            {storeItems.map((item) => (
+              <div key={item.id} className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <img src={item.imageUrl} alt={item.title} className="w-12 h-12 rounded object-cover" />
+                  <div>
+                    <p className="font-medium text-gray-900">{item.title}</p>
+                    <p className="text-sm text-gray-600">{item.category} • Stock: {item.stock}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-bold text-gray-900">₹{item.price}</span>
+                  <button className="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded transition-colors">Edit</button>
+                  <button className="px-3 py-1 text-red-600 hover:bg-red-50 rounded transition-colors">Delete</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Recent Orders */}
         <div className="bg-white rounded-xl border border-gray-100">
           <div className="p-6 border-b border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Recent Orders</h3>
+              <div className="flex items-center gap-2">
+                <select className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
+                  <option value="all">All Orders</option>
+                  <option value="pending">Pending</option>
+                  <option value="fulfilled">Fulfilled</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
           </div>
           <div className="divide-y divide-gray-100">
             {orders.map((order) => (
-              <div key={order.id} className="p-4 flex items-center justify-between">
+              <div key={order.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                 <div>
                   <p className="text-sm font-medium text-gray-900">Order #{order.id}</p>
                   <p className="text-xs text-gray-600">{order.items.join(', ')}</p>
                   <p className="text-xs text-gray-500">{order.date}</p>
                 </div>
-                <div className="text-right">
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
                   <p className="text-sm font-medium text-gray-900">₹{order.total}</p>
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                     order.status === 'FULFILLED' ? 'bg-emerald-100 text-emerald-800' :
@@ -260,6 +312,17 @@ const SchoolStore: React.FC = () => {
                   }`}>
                     {order.status}
                   </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button className="px-3 py-1 text-blue-600 hover:bg-blue-50 rounded transition-colors text-sm">
+                      View
+                    </button>
+                    {order.status === 'PENDING' && (
+                      <button className="px-3 py-1 text-emerald-600 hover:bg-emerald-50 rounded transition-colors text-sm">
+                        Fulfill
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}

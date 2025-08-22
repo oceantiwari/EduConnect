@@ -145,13 +145,18 @@ const TestsManager: React.FC = () => {
             <p className="text-gray-600">Manage tests and track student performance</p>
           </div>
         </div>
-        <button
-          onClick={() => setShowNewTest(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Create Test
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowNewTest(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" />
+            Create Test
+          </button>
+          <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+            Import Results
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -202,10 +207,34 @@ const TestsManager: React.FC = () => {
         </div>
       </div>
 
+      {/* Quick Test Actions */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <button 
+          onClick={() => setShowNewTest(true)}
+          className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors text-center"
+        >
+          <BookOpen className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+          <p className="text-sm font-medium text-gray-600">Create New Test</p>
+        </button>
+        <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-emerald-400 hover:bg-emerald-50 transition-colors text-center">
+          <BarChart3 className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+          <p className="text-sm font-medium text-gray-600">View Analytics</p>
+        </button>
+        <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-orange-400 hover:bg-orange-50 transition-colors text-center">
+          <FileText className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+          <p className="text-sm font-medium text-gray-600">Export Results</p>
+        </button>
+        <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors text-center">
+          <Calendar className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+          <p className="text-sm font-medium text-gray-600">Schedule Test</p>
+        </button>
+      </div>
+
       {/* Tabs */}
       <div className="bg-white rounded-xl border border-gray-100">
         <div className="border-b border-gray-200">
-          <nav className="flex space-x-8 px-6">
+          <div className="flex items-center justify-between px-6 py-2">
+            <nav className="flex space-x-8">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -222,13 +251,23 @@ const TestsManager: React.FC = () => {
                 </span>
               </button>
             ))}
-          </nav>
+            </nav>
+            <div className="flex items-center gap-2">
+              <select className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                <option value="all">All Subjects</option>
+                <option value="mathematics">Mathematics</option>
+                <option value="science">Science</option>
+                <option value="english">English</option>
+                <option value="social">Social Studies</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         <div className="p-6">
           <div className="space-y-4">
             {filteredTests.map((test) => (
-              <div key={test.id} className="border border-gray-200 rounded-lg p-6">
+              <div key={test.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -278,10 +317,10 @@ const TestsManager: React.FC = () => {
                         View Results
                       </button>
                     )}
-                    <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                    <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors" title="Edit Test">
                       <Edit className="w-4 h-4" />
                     </button>
-                    <button className="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                    <button className="p-2 text-gray-400 hover:text-red-600 transition-colors" title="Delete Test">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>

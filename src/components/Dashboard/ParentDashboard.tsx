@@ -92,26 +92,44 @@ const ParentDashboard: React.FC = () => {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Today's Status */}
-        <div className="bg-white rounded-xl p-6 border border-gray-100">
-          <div className="flex items-center gap-2 mb-4">
-            <UserCheck className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Today's Attendance</h3>
-          </div>
-          <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
-              <div>
-                <p className="text-sm font-medium text-emerald-800">Child Departure Marked</p>
-                <p className="text-xs text-emerald-600">Left for school at {todayAttendance.time}</p>
-              </div>
-            </div>
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  {/* Today's Status */}
+  <div className="bg-white rounded-xl p-6 border border-gray-100">
+    <div className="flex items-center gap-2 mb-4">
+      <UserCheck className="w-5 h-5 text-blue-600" />
+      <h3 className="text-lg font-semibold text-gray-900">Today's Attendance</h3>
+    </div>
+
+    <div className="flex items-center justify-between p-4 bg-emerald-50 rounded-lg">
+      <div className="flex items-center gap-3">
+        <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
+        <div>
+          <p className="text-sm font-medium text-emerald-800">Child Departure Status</p>
+          <p className="text-xs text-emerald-600">
+            {todayAttendance.marked
+              ? `Left for school at ${todayAttendance.time}`
+              : 'Not marked yet'}
+          </p>
+
+          {/* Status + Button */}
+          <div className="mt-2 flex items-center gap-3">
             <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-sm font-medium rounded-full">
               {todayAttendance.status}
             </span>
-          </div>
+            <button
+              onClick={() => handleLeftHome()} // call your function
+              type="button"
+              className="px-3 py-1 bg-blue-600 text-white text-sm font-medium rounded-full hover:bg-blue-700 transition"
+            >
+              Left
+            </button>
+          
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
         {/* Recent Praise */}
         <div className="bg-white rounded-xl p-6 border border-gray-100">

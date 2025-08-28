@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Clock, Users, Plus, Bell } from 'lucide-react';
+import { Calendar, MapPin, Clock, Users, Plus, Bell, X, CheckCircle, XCircle } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const EventsManager: React.FC = () => {
   const { user } = useAuth();
   const [showNewEvent, setShowNewEvent] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
+  const [eventDepartureStatus, setEventDepartureStatus] = useState<Record<string, 'LEFT' | 'NOT_LEFT'>>({
+    '1': 'LEFT',
+    '2': 'NOT_LEFT'
+  });
 
   const events = [
     {
@@ -19,7 +23,10 @@ const EventsManager: React.FC = () => {
       registrationRequired: false,
       maxParticipants: null,
       currentParticipants: 0,
-      imageUrl: 'https://images.pexels.com/photos/2280571/pexels-photo-2280571.jpeg?auto=compress&cs=tinysrgb&w=400'
+      imageUrl: 'https://images.pexels.com/photos/2280571/pexels-photo-2280571.jpeg?auto=compress&cs=tinysrgb&w=400',
+      instructions: 'Please bring your science projects and display materials. Parents are encouraged to attend and support their children.',
+      contactPerson: 'Ms. Davis',
+      contactPhone: '+91 9876543210'
     },
     {
       id: '2',
@@ -32,7 +39,10 @@ const EventsManager: React.FC = () => {
       registrationRequired: true,
       maxParticipants: 150,
       currentParticipants: 98,
-      imageUrl: 'https://images.pexels.com/photos/8112161/pexels-photo-8112161.jpeg?auto=compress&cs=tinysrgb&w=400'
+      imageUrl: 'https://images.pexels.com/photos/8112161/pexels-photo-8112161.jpeg?auto=compress&cs=tinysrgb&w=400',
+      instructions: 'Please arrive 15 minutes early for your scheduled slot. Bring your child\'s progress report and any questions you may have.',
+      contactPerson: 'School Office',
+      contactPhone: '+91 9876543210'
     },
     {
       id: '3',
@@ -45,7 +55,10 @@ const EventsManager: React.FC = () => {
       registrationRequired: false,
       maxParticipants: null,
       currentParticipants: 0,
-      imageUrl: 'https://images.pexels.com/photos/296301/pexels-photo-296301.jpeg?auto=compress&cs=tinysrgb&w=400'
+      imageUrl: 'https://images.pexels.com/photos/296301/pexels-photo-296301.jpeg?auto=compress&cs=tinysrgb&w=400',
+      instructions: 'Students should wear their sports uniform and bring water bottles. Parents are welcome to cheer from the designated seating area.',
+      contactPerson: 'Mr. Johnson (Sports Teacher)',
+      contactPhone: '+91 9876543211'
     },
     {
       id: '4',
@@ -58,7 +71,10 @@ const EventsManager: React.FC = () => {
       registrationRequired: true,
       maxParticipants: 30,
       currentParticipants: 18,
-      imageUrl: 'https://images.pexels.com/photos/1153213/pexels-photo-1153213.jpeg?auto=compress&cs=tinysrgb&w=400'
+      imageUrl: 'https://images.pexels.com/photos/1153213/pexels-photo-1153213.jpeg?auto=compress&cs=tinysrgb&w=400',
+      instructions: 'All art materials will be provided. Please wear clothes that can get messy. Children and parents will work together on projects.',
+      contactPerson: 'Ms. Smith (Art Teacher)',
+      contactPhone: '+91 9876543212'
     }
   ];
 
@@ -87,6 +103,20 @@ const EventsManager: React.FC = () => {
 
   const isRegistrationFull = (event: any) => {
     return event.maxParticipants && event.currentParticipants >= event.maxParticipants;
+  };
+
+  const handleEventClick = (event: any) => {
+    setSelectedEvent(event);
+  };
+
+  const handleDepartureStatusChange = (eventId: string, status: 'LEFT' | 'NOT_LEFT') => {
+    setEventDepartureStatus(prev => ({ ...prev, [eventId]: status }));
+    // In real app, this would submit to backend
+    console.log(`Event ${eventId} departure status: ${status}`);
+  };
+
+  const closeEventDetails = () => {
+    setSelectedEvent(null);
   };
 
   if (user?.role === 'SCHOOL_ADMIN' || user?.role === 'TEACHER') {
@@ -232,7 +262,11 @@ const EventsManager: React.FC = () => {
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Upcoming Events</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {upcomingEvents.map((event) => (
-            <div key={event.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
+            <div 
+              key={event.id} 
+              className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => handleEventClick(event)}
+            >
               <div className="h-48 bg-gray-200 overflow-hidden">
                 <img src={event.imageUrl} alt={event.title} className="w-full h-full object-cover" />
               </div>
@@ -283,6 +317,48 @@ const EventsManager: React.FC = () => {
                   <div className="flex items-center gap-2 text-sm text-emerald-600">
                     <Users className="w-4 h-4" />
                     <span>Open to all - No registration required</span>
+                  </div>
+                )}
+
+                {/* Departure Status for Parents */}
+                {user?.role === 'PARENT' && (
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <p className="text-sm font-medium text-gray-700 mb-2">Will your child attend this event?</p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDepartureStatusChange(event.id, 'LEFT');
+                        }}
+                        className={`flex-1 py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                          eventDepartureStatus[event.id] === 'LEFT'
+                            ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                            : 'border border-gray-300 text-gray-700 hover:bg-emerald-50'
+                        }`}
+                      >
+                        <CheckCircle className="w-4 h-4" />
+                        Yes, Attending
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDepartureStatusChange(event.id, 'NOT_LEFT');
+                        }}
+                        className={`flex-1 py-2 px-3 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                          eventDepartureStatus[event.id] === 'NOT_LEFT'
+                            ? 'bg-red-100 text-red-800 border border-red-200'
+                            : 'border border-gray-300 text-gray-700 hover:bg-red-50'
+                        }`}
+                      >
+                        <XCircle className="w-4 h-4" />
+                        Not Attending
+                      </button>
+                    </div>
+                    {eventDepartureStatus[event.id] && (
+                      <p className="text-xs text-gray-500 mt-2 text-center">
+                        Status: {eventDepartureStatus[event.id] === 'LEFT' ? 'Attending' : 'Not Attending'}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
@@ -407,6 +483,162 @@ const EventsManager: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Event Details Modal */}
+      {selectedEvent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-auto">
+            <div className="relative">
+              <div className="h-64 bg-gray-200 overflow-hidden rounded-t-xl">
+                <img src={selectedEvent.imageUrl} alt={selectedEvent.title} className="w-full h-full object-cover" />
+              </div>
+              <button
+                onClick={closeEventDetails}
+                className="absolute top-4 right-4 p-2 bg-white bg-opacity-90 hover:bg-opacity-100 rounded-full transition-all"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <h2 className="text-2xl font-bold text-gray-900">{selectedEvent.title}</h2>
+                <span className={`px-3 py-1 text-sm font-medium rounded-full ${getCategoryColor(selectedEvent.category)}`}>
+                  {selectedEvent.category}
+                </span>
+              </div>
+              
+              <p className="text-gray-700 mb-6">{selectedEvent.description}</p>
+              
+              {/* Event Details */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Calendar className="w-5 h-5 text-purple-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Date</p>
+                    <p className="text-sm text-gray-600">{selectedEvent.date}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Clock className="w-5 h-5 text-purple-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Time</p>
+                    <p className="text-sm text-gray-600">{selectedEvent.time}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <MapPin className="w-5 h-5 text-purple-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Venue</p>
+                    <p className="text-sm text-gray-600">{selectedEvent.venue}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <Users className="w-5 h-5 text-purple-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">Contact</p>
+                    <p className="text-sm text-gray-600">{selectedEvent.contactPerson}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Instructions */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Instructions</h3>
+                <p className="text-gray-700 bg-blue-50 p-4 rounded-lg">{selectedEvent.instructions}</p>
+              </div>
+              
+              {/* Contact Information */}
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Contact Information</h3>
+                <div className="flex items-center gap-2 text-gray-700">
+                  <span className="font-medium">{selectedEvent.contactPerson}</span>
+                  <span>•</span>
+                  <a href={`tel:${selectedEvent.contactPhone}`} className="text-purple-600 hover:underline">
+                    {selectedEvent.contactPhone}
+                  </a>
+                </div>
+              </div>
+              
+              {/* Registration Status */}
+              {selectedEvent.registrationRequired && (
+                <div className="mb-6 p-4 bg-purple-50 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900">Registration Status</h3>
+                    {isRegistrationFull(selectedEvent) && (
+                      <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                        Full
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-700 mb-3">
+                    {selectedEvent.currentParticipants}
+                    {selectedEvent.maxParticipants && `/${selectedEvent.maxParticipants}`} registered
+                  </p>
+                  <button
+                    onClick={() => registerForEvent(selectedEvent.id)}
+                    disabled={isRegistrationFull(selectedEvent)}
+                    className="w-full bg-purple-600 text-white py-2 rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {isRegistrationFull(selectedEvent) ? 'Registration Full' : 'Register Now'}
+                  </button>
+                </div>
+              )}
+              
+              {/* Departure Status for Parents */}
+              {user?.role === 'PARENT' && (
+                <div className="mb-6 p-4 bg-emerald-50 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Attendance Status</h3>
+                  <p className="text-gray-700 mb-3">Will your child attend this event?</p>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => handleDepartureStatusChange(selectedEvent.id, 'LEFT')}
+                      className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                        eventDepartureStatus[selectedEvent.id] === 'LEFT'
+                          ? 'bg-emerald-600 text-white'
+                          : 'border border-emerald-600 text-emerald-600 hover:bg-emerald-50'
+                      }`}
+                    >
+                      <CheckCircle className="w-5 h-5" />
+                      Yes, Attending
+                    </button>
+                    <button
+                      onClick={() => handleDepartureStatusChange(selectedEvent.id, 'NOT_LEFT')}
+                      className={`flex-1 py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                        eventDepartureStatus[selectedEvent.id] === 'NOT_LEFT'
+                          ? 'bg-red-600 text-white'
+                          : 'border border-red-600 text-red-600 hover:bg-red-50'
+                      }`}
+                    >
+                      <XCircle className="w-5 h-5" />
+                      Not Attending
+                    </button>
+                  </div>
+                  {eventDepartureStatus[selectedEvent.id] && (
+                    <div className="mt-3 p-3 bg-white rounded-lg">
+                      <p className="text-sm font-medium text-gray-900">
+                        Status: {eventDepartureStatus[selectedEvent.id] === 'LEFT' ? 'Attending' : 'Not Attending'}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        You can change this status anytime before the event.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              <div className="flex justify-end">
+                <button
+                  onClick={closeEventDetails}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

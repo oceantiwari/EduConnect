@@ -1,10 +1,10 @@
 import React from 'react';
-import { 
-  Home, 
-  Users, 
-  Calendar, 
-  MessageSquare, 
-  ShoppingBag, 
+import {
+  Home,
+  Users,
+  Calendar,
+  MessageSquare,
+  ShoppingBag,
   Bell,
   ClipboardList,
   BarChart3,
@@ -15,9 +15,21 @@ import {
   Gift,
   FileText,
   CalendarDays,
-  X
+  X,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+
+const calmTheme = {
+  bg: '#fdfdfd',
+  primary: '#3f72af',   // Calm muted blue
+  secondary: '#112d4e', // Dark navy
+  accent: '#dbe2ef',    // Soft grey-blue
+  textDark: '#222',
+  textLight: '#fff',
+  border: '#e0e0e0',
+  hoverBg: '#f0f4fa',
+  activeBg: '#e3ecf7',
+};
 
 interface SidebarProps {
   activeTab: string;
@@ -79,51 +91,127 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isOpen, onClo
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+        <div
           onClick={onClose}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            zIndex: 40,
+            backdropFilter: 'blur(3px)',
+            cursor: 'pointer',
+          }}
         />
       )}
-      
+
       {/* Sidebar */}
-      <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out
-        lg:relative lg:translate-x-0 lg:z-0
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-      `}>
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-4 border-b border-gray-200 lg:hidden">
-            <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
-            <button 
-              onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          
-          <nav className="flex-1 p-4 space-y-1">
-            {getMenuItems().map((item) => (
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '100vh',
+          width: 280,
+          backgroundColor: calmTheme.bg,
+          borderRight: `1px solid ${calmTheme.border}`,
+          boxShadow: '3px 0 10px rgba(0,0,0,0.05)',
+          transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s ease-in-out',
+          zIndex: 50,
+          display: 'flex',
+          flexDirection: 'column',
+          paddingTop: 20,
+          fontFamily: "'Inter', sans-serif",
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '0 20px 20px',
+            borderBottom: `1px solid ${calmTheme.border}`,
+          }}
+        >
+          <h2
+            style={{
+              fontSize: 20,
+              fontWeight: 700,
+              color: calmTheme.secondary,
+              letterSpacing: 1,
+            }}
+          >
+            Menu
+          </h2>
+          <button
+            onClick={onClose}
+            aria-label="Close sidebar"
+            style={{
+              backgroundColor: calmTheme.primary,
+              borderRadius: '50%',
+              border: 'none',
+              width: 34,
+              height: 34,
+              color: calmTheme.textLight,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        {/* Menu items */}
+        <nav style={{ flex: 1, overflowY: 'auto', padding: '0 10px' }}>
+          {getMenuItems().map((item) => {
+            const isActive = activeTab === item.id;
+            return (
               <button
                 key={item.id}
                 onClick={() => {
                   onTabChange(item.id);
                   onClose();
                 }}
-                className={`
-                  flex items-center gap-3 w-full px-3 py-2 text-left rounded-lg transition-all duration-200
-                  ${activeTab === item.id 
-                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600' 
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }
-                `}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 14,
+                  width: '100%',
+                  padding: '12px 20px',
+                  marginBottom: 8,
+                  borderRadius: 10,
+                  border: isActive
+                    ? `1px solid ${calmTheme.primary}`
+                    : '1px solid transparent',
+                  backgroundColor: isActive ? calmTheme.activeBg : calmTheme.bg,
+                  color: isActive ? calmTheme.primary : calmTheme.textDark,
+                  fontWeight: 600,
+                  fontSize: 15,
+                  cursor: 'pointer',
+                  transition: 'all 0.25s ease',
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) e.currentTarget.style.backgroundColor = calmTheme.hoverBg;
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) e.currentTarget.style.backgroundColor = calmTheme.bg;
+                }}
               >
-                <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-blue-600' : ''}`} />
-                <span className="font-medium">{item.label}</span>
+                <item.icon
+                  size={20}
+                  style={{
+                    flexShrink: 0,
+                    color: isActive ? calmTheme.primary : calmTheme.secondary,
+                  }}
+                />
+                {item.label}
               </button>
-            ))}
-          </nav>
-        </div>
+            );
+          })}
+        </nav>
       </div>
     </>
   );

@@ -28,198 +28,201 @@ const TeacherDashboard: React.FC = () => {
   ];
 
   const pendingActions = [
-    { type: 'praise', count: 3, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { type: 'complaints', count: 1, color: 'text-red-600', bg: 'bg-red-50' },
-    { type: 'test results', count: 2, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { type: 'attendance', count: 0, color: 'text-gray-600', bg: 'bg-gray-50' }
+    { type: 'praise', count: 3, color: 'text-teal-700', bg: 'bg-teal-100' },
+    { type: 'complaints', count: 1, color: 'text-rose-700', bg: 'bg-rose-100' },
+    { type: 'test results', count: 2, color: 'text-sky-700', bg: 'bg-sky-100' },
+    { type: 'attendance', count: 0, color: 'text-stone-600', bg: 'bg-stone-100' }
   ];
 
   const quickStats = [
-    { label: 'Total Students', value: '28', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-    { label: 'Present Today', value: '26', icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-    { label: 'Tests This Week', value: '3', icon: BookOpen, color: 'text-purple-600', bg: 'bg-purple-50' },
-    { label: 'Pending Reviews', value: '6', icon: Clock, color: 'text-orange-600', bg: 'bg-orange-50' },
+    { label: 'Total Students', value: '28', icon: Users, color: 'text-sky-700', bg: 'bg-sky-100' },
+    { label: 'Present Today', value: '26', icon: CheckCircle, color: 'text-teal-700', bg: 'bg-teal-100' },
+    { label: 'Tests This Week', value: '3', icon: BookOpen, color: 'text-violet-700', bg: 'bg-violet-100' },
+    { label: 'Pending Reviews', value: '6', icon: Clock, color: 'text-amber-700', bg: 'bg-amber-100' },
   ];
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-8 bg-gray-50 min-h-screen font-sans">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <header className="flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Good Morning, Mr. Smith!</h1>
-          <p className="text-gray-600">Manage your class and track student progress</p>
+          <h1 className="text-3xl font-semibold text-gray-800">Good Morning, Mr. Smith!</h1>
+          <p className="mt-1 text-gray-500 text-sm md:text-base">Manage your class and track student progress</p>
         </div>
-      </div>
+      </header>
 
       {/* Class Overview Card */}
-      <div className="bg-gradient-to-r from-emerald-500 to-blue-500 rounded-2xl p-6 text-white">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-white/20 rounded-2xl overflow-hidden flex items-center justify-center">
-            <Users className="w-8 h-8 text-white" />
-          </div>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold">{classInfo.name}</h2>
-            <p className="text-emerald-100">Class Teacher</p>
-          </div>
-          <div className="text-right">
-            <div className="bg-white/20 rounded-lg px-4 py-2">
-              <p className="text-2xl font-bold">{classInfo.presentToday}/{classInfo.totalStudents}</p>
-              <p className="text-sm text-emerald-100">Present Today</p>
-            </div>
-          </div>
+      <section className="bg-gradient-to-r from-slate-300 via-slate-200 to-slate-300 rounded-2xl p-6 text-slate-800 shadow-md flex items-center gap-6">
+        <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-inner">
+          <Users className="w-8 h-8 text-slate-600" />
         </div>
-      </div>
+        <div className="flex-1">
+          <h2 className="text-2xl font-semibold">{classInfo.name}</h2>
+          <p className="text-sm text-slate-500">Class Teacher</p>
+        </div>
+        <div className="text-right bg-white rounded-lg px-5 py-3 shadow-inner">
+          <p className="text-3xl font-bold">{classInfo.presentToday}/{classInfo.totalStudents}</p>
+          <p className="text-xs text-slate-500 tracking-wide">Present Today</p>
+        </div>
+      </section>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {quickStats.map((stat, index) => (
-          <div key={index} className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-lg ${stat.bg}`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-600">{stat.label}</p>
-                <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-              </div>
+          <div 
+            key={index} 
+            className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow flex items-center gap-4"
+          >
+            <div className={`p-3 rounded-lg ${stat.bg} flex items-center justify-center`}>
+              <stat.icon className={`w-6 h-6 ${stat.color}`} />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{stat.label}</p>
+              <p className="text-xl font-bold text-gray-800">{stat.value}</p>
             </div>
           </div>
         ))}
-      </div>
+      </section>
 
       {/* Main Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Today's Schedule */}
-        <div className="bg-white rounded-xl p-6 border border-gray-100">
-          <div className="flex items-center gap-2 mb-4">
-            <Calendar className="w-5 h-5 text-blue-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Today's Schedule</h3>
-          </div>
-          <div className="space-y-3">
+        <article className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <header className="flex items-center gap-2 mb-5 text-slate-700">
+            <Calendar className="w-5 h-5" />
+            <h3 className="text-lg font-semibold">Today's Schedule</h3>
+          </header>
+          <div className="space-y-4">
             {todayTasks.map((task, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+              <div 
+                key={index} 
+                className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors"
+              >
                 <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    task.status === 'completed' ? 'bg-emerald-500' :
-                    task.status === 'pending' ? 'bg-orange-500' :
-                    'bg-blue-500'
-                  }`}></div>
+                  <span 
+                    className={`w-3 h-3 rounded-full ${
+                      task.status === 'completed' ? 'bg-teal-600' :
+                      task.status === 'pending' ? 'bg-amber-500' :
+                      'bg-sky-500'
+                    }`}
+                  />
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{task.task}</p>
-                    <p className="text-xs text-gray-600">{task.time}</p>
+                    <p className="text-sm font-medium text-gray-800">{task.task}</p>
+                    <p className="text-xs text-gray-500">{task.time}</p>
                   </div>
                 </div>
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                  task.status === 'completed' ? 'bg-emerald-100 text-emerald-800' :
-                  task.status === 'pending' ? 'bg-orange-100 text-orange-800' :
-                  'bg-blue-100 text-blue-800'
-                }`}>
+                <span 
+                  className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                    task.status === 'completed' ? 'bg-teal-100 text-teal-700' :
+                    task.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                    'bg-sky-100 text-sky-700'
+                  } capitalize`}
+                >
                   {task.status}
                 </span>
               </div>
             ))}
           </div>
-        </div>
+        </article>
 
         {/* Attendance Status */}
-        <div className="bg-white rounded-xl p-6 border border-gray-100">
-          <div className="flex items-center gap-2 mb-4">
-            <ClipboardList className="w-5 h-5 text-emerald-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Attendance Status</h3>
-          </div>
+        <article className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm flex flex-col items-center">
+          <header className="flex items-center gap-2 mb-6 text-slate-700 self-start">
+            <ClipboardList className="w-5 h-5" />
+            <h3 className="text-lg font-semibold">Attendance Status</h3>
+          </header>
           
-          <div className="flex items-center justify-center mb-6">
-            <div className="relative w-32 h-32">
-              <svg className="transform -rotate-90 w-32 h-32">
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="56"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  fill="transparent"
-                  className="text-gray-200"
-                />
-                <circle
-                  cx="64"
-                  cy="64"
-                  r="56"
-                  stroke="currentColor"
-                  strokeWidth="8"
-                  fill="transparent"
-                  strokeDasharray={`${(classInfo.presentToday / classInfo.totalStudents) * 351.86} 351.86`}
-                  className="text-emerald-500"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">
-                    {Math.round((classInfo.presentToday / classInfo.totalStudents) * 100)}%
-                  </div>
-                  <div className="text-sm text-gray-600">Present</div>
-                </div>
-              </div>
+          <div className="relative w-36 h-36 mb-6">
+            <svg className="transform -rotate-90 w-36 h-36">
+              <circle
+                cx="72"
+                cy="72"
+                r="62"
+                stroke="currentColor"
+                strokeWidth="8"
+                fill="transparent"
+                className="text-gray-200"
+              />
+              <circle
+                cx="72"
+                cy="72"
+                r="62"
+                stroke="currentColor"
+                strokeWidth="8"
+                fill="transparent"
+                strokeDasharray={`${(classInfo.presentToday / classInfo.totalStudents) * 389.56} 389.56`}
+                className="text-teal-600"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <p className="text-3xl font-bold text-gray-800">
+                {Math.round((classInfo.presentToday / classInfo.totalStudents) * 100)}%
+              </p>
+              <p className="text-sm text-gray-500 tracking-wide">Present</p>
             </div>
           </div>
 
-          <div className="flex justify-between text-sm">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-emerald-600">{classInfo.presentToday}</div>
-              <div className="text-gray-600">Present</div>
+          <div className="flex justify-around w-full text-center text-sm text-gray-600">
+            <div>
+              <p className="text-2xl font-semibold text-teal-700">{classInfo.presentToday}</p>
+              <p>Present</p>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-600">{classInfo.totalStudents - classInfo.presentToday}</div>
-              <div className="text-gray-600">Absent</div>
+            <div>
+              <p className="text-2xl font-semibold text-rose-600">{classInfo.totalStudents - classInfo.presentToday}</p>
+              <p>Absent</p>
             </div>
           </div>
-        </div>
+        </article>
 
         {/* Pending Actions */}
-        <div className="bg-white rounded-xl p-6 border border-gray-100">
-          <div className="flex items-center gap-2 mb-4">
-            <AlertTriangle className="w-5 h-5 text-orange-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Pending Actions</h3>
-          </div>
-          <div className="space-y-3">
+        <article className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <header className="flex items-center gap-2 mb-5 text-slate-700">
+            <AlertTriangle className="w-5 h-5" />
+            <h3 className="text-lg font-semibold">Pending Actions</h3>
+          </header>
+          <div className="space-y-4">
             {pendingActions.map((action, index) => (
-              <div key={index} className="flex items-center justify-between p-3 rounded-lg border border-gray-200">
+              <div 
+                key={index} 
+                className="flex items-center justify-between p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors"
+              >
                 <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${action.color.replace('text-', 'bg-')}`}></div>
-                  <span className="text-sm font-medium text-gray-900 capitalize">
+                  <span className={`w-3 h-3 rounded-full ${action.bg.replace('bg-', 'bg-')}`} />
+                  <span className="text-sm font-medium text-gray-800 capitalize">
                     {action.type} to review
                   </span>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${action.bg} ${action.color}`}>
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold ${action.bg} ${action.color}`}>
                   {action.count}
                 </span>
               </div>
             ))}
           </div>
-        </div>
+        </article>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-xl p-6 border border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-2 gap-3">
-            <button className="flex items-center gap-2 p-3 text-left border border-gray-200 rounded-lg hover:bg-emerald-50 hover:border-emerald-200 transition-colors">
-              <ClipboardList className="w-5 h-5 text-emerald-600" />
-              <span className="text-sm font-medium">Take Attendance</span>
+        <article className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-800 mb-6">Quick Actions</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <button className="flex items-center gap-3 p-3 text-left border border-gray-200 rounded-lg hover:bg-teal-50 hover:border-teal-300 transition-colors text-teal-700 font-medium">
+              <ClipboardList className="w-5 h-5" />
+              Take Attendance
             </button>
-            <button className="flex items-center gap-2 p-3 text-left border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition-colors">
-              <BookOpen className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-medium">Add Test</span>
+            <button className="flex items-center gap-3 p-3 text-left border border-gray-200 rounded-lg hover:bg-sky-50 hover:border-sky-300 transition-colors text-sky-700 font-medium">
+              <BookOpen className="w-5 h-5" />
+              Add Test
             </button>
-            <button className="flex items-center gap-2 p-3 text-left border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-200 transition-colors">
-              <MessageCircle className="w-5 h-5 text-purple-600" />
-              <span className="text-sm font-medium">Send Praise</span>
+            <button className="flex items-center gap-3 p-3 text-left border border-gray-200 rounded-lg hover:bg-violet-50 hover:border-violet-300 transition-colors text-violet-700 font-medium">
+              <MessageCircle className="w-5 h-5" />
+              Send Praise
             </button>
-            <button className="flex items-center gap-2 p-3 text-left border border-gray-200 rounded-lg hover:bg-orange-50 hover:border-orange-200 transition-colors">
-              <Bell className="w-5 h-5 text-orange-600" />
-              <span className="text-sm font-medium">Send Update</span>
+            <button className="flex items-center gap-3 p-3 text-left border border-gray-200 rounded-lg hover:bg-amber-50 hover:border-amber-300 transition-colors text-amber-700 font-medium">
+              <Bell className="w-5 h-5" />
+              Send Update
             </button>
           </div>
-        </div>
-      </div>
+        </article>
+      </section>
     </div>
   );
 };

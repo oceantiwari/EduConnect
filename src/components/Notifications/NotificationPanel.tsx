@@ -58,11 +58,11 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ onClose }) => {
   };
 
   const getNotificationColor = (type: string, priority: string) => {
-    if (priority === 'high') return 'text-red-600 bg-red-50';
-    if (type === 'ATTENDANCE') return 'text-blue-600 bg-blue-50';
-    if (type === 'PRAISE') return 'text-emerald-600 bg-emerald-50';
-    if (type === 'EVENT') return 'text-purple-600 bg-purple-50';
-    return 'text-gray-600 bg-gray-50';
+    if (priority === 'high') return 'text-red-500 bg-red-100';
+    if (type === 'ATTENDANCE') return 'text-sky-600 bg-sky-100';
+    if (type === 'PRAISE') return 'text-emerald-600 bg-emerald-100';
+    if (type === 'EVENT') return 'text-violet-600 bg-violet-100';
+    return 'text-gray-600 bg-gray-100';
   };
 
   const formatTime = (timestamp: string) => {
@@ -77,8 +77,9 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-      <div className="flex items-center justify-between p-4 border-b border-gray-100">
+    <div className="absolute right-0 top-full mt-2 w-80 bg-gradient-to-br from-white via-blue-50 to-emerald-50 rounded-2xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white/70 backdrop-blur">
         <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
         <button
           onClick={onClose}
@@ -88,6 +89,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ onClose }) => {
         </button>
       </div>
       
+      {/* Notification List */}
       <div className="max-h-96 overflow-y-auto">
         {notifications.length === 0 ? (
           <div className="p-6 text-center">
@@ -101,21 +103,24 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ onClose }) => {
               return (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
-                    !notification.isRead ? 'bg-blue-50/50' : ''
+                  className={`p-4 hover:bg-blue-50/40 transition-all cursor-pointer ${
+                    !notification.isRead ? 'bg-sky-50/60' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-lg ${getNotificationColor(notification.type, notification.priority)}`}>
-                      <IconComponent className="w-4 h-4" />
+                    {/* Icon */}
+                    <div className={`p-2 rounded-xl shadow-sm ${getNotificationColor(notification.type, notification.priority)}`}>
+                      <IconComponent className="w-5 h-5" />
                     </div>
+                    
+                    {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="text-sm font-medium text-gray-900 truncate">
                           {notification.title}
                         </h4>
                         {!notification.isRead && (
-                          <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                          <span className="w-2 h-2 bg-sky-500 rounded-full animate-pulse"></span>
                         )}
                       </div>
                       <p className="text-sm text-gray-700 mb-1">{notification.message}</p>
@@ -129,9 +134,10 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ onClose }) => {
         )}
       </div>
       
+      {/* Footer */}
       {notifications.length > 0 && (
-        <div className="p-4 border-t border-gray-100">
-          <button className="w-full text-blue-600 text-sm font-medium hover:text-blue-700 transition-colors">
+        <div className="p-4 border-t border-gray-200 bg-white/70 backdrop-blur">
+          <button className="w-full text-sky-600 text-sm font-medium hover:text-sky-700 transition-colors">
             Mark all as read
           </button>
         </div>

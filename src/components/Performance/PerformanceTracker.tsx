@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { BarChart3, TrendingUp, Award, BookOpen } from 'lucide-react';
+import { BarChart3, TrendingUp, Award, BookOpen, Calendar, Filter } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 const PerformanceTracker: React.FC = () => {
   const { user } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState('current');
   const [selectedSubject, setSelectedSubject] = useState('all');
+  const [selectedExam, setSelectedExam] = useState('All Exams');
 
   const studentPerformance = {
     student: {
@@ -31,12 +32,11 @@ const PerformanceTracker: React.FC = () => {
       { id: '4', subject: 'Social Studies', date: '2025-01-05', score: 45, total: 50, percentage: 90, rank: 3 },
       { id: '5', subject: 'Hindi', date: '2025-01-07', score: 41, total: 50, percentage: 82, rank: 8 }
     ],
-    monthlyProgress: [
-      { month: 'Sep', percentage: 82 },
-      { month: 'Oct', percentage: 85 },
-      { month: 'Nov', percentage: 87 },
-      { month: 'Dec', percentage: 86 },
-      { month: 'Jan', percentage: 88 }
+    examProgress: [
+      { exam: 'UT 1', percentage: 82, grade: 'B' },
+      { exam: 'Mid Term', percentage: 85, grade: 'B+' },
+      { exam: 'UT 2', percentage: 87, grade: 'B+' },
+      { exam: 'Final Term', percentage: 88, grade: 'A' }
     ]
   };
 
@@ -54,8 +54,8 @@ const PerformanceTracker: React.FC = () => {
   const getTrendIcon = (trend: string) => {
     switch (trend) {
       case 'up': return <TrendingUp className="w-4 h-4 text-emerald-600" />;
-      case 'down': return <TrendingUp className="w-4 h-4 text-red-500 rotate-180" />;
-      default: return <div className="w-2 h-2 bg-gray-300 rounded-full"></div>;
+      case 'down': return <TrendingUp className="w-4 h-4 text-red-600 rotate-180" />;
+      default: return <div className="w-4 h-4 bg-gray-400 rounded-full"></div>;
     }
   };
 
@@ -64,17 +64,17 @@ const PerformanceTracker: React.FC = () => {
     : studentPerformance.subjects.filter(subject => subject.name.toLowerCase().includes(selectedSubject.toLowerCase()));
 
   return (
-    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
-      {/* Header */}
+    <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <BarChart3 className="w-8 h-8 text-indigo-600" />
+          <BarChart3 className="w-8 h-8 text-blue-600" />
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Performance Tracker</h1>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600">
               {user?.role === 'PARENT' 
-                ? "Track your child's academic journey with ease." 
-                : "Monitor student performance and improvements."}
+                ? "Track your child's academic progress and test results" 
+                : "Monitor student performance and track improvements"
+              }
             </p>
           </div>
         </div>
@@ -82,7 +82,7 @@ const PerformanceTracker: React.FC = () => {
           <select
             value={selectedPeriod}
             onChange={(e) => setSelectedPeriod(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg bg-white text-gray-700 text-sm focus:ring-2 focus:ring-indigo-400"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="current">Current Term</option>
             <option value="previous">Previous Term</option>
@@ -91,7 +91,7 @@ const PerformanceTracker: React.FC = () => {
           <select
             value={selectedSubject}
             onChange={(e) => setSelectedSubject(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg bg-white text-gray-700 text-sm focus:ring-2 focus:ring-indigo-400"
+            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="all">All Subjects</option>
             <option value="mathematics">Mathematics</option>
@@ -103,108 +103,149 @@ const PerformanceTracker: React.FC = () => {
         </div>
       </div>
 
-      {/* Overall Performance */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+      {/* Overall Performance Card */}
+      <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">{studentPerformance.student.name}</h2>
-            <p className="text-gray-500 text-sm">{studentPerformance.student.class} • Roll No: {studentPerformance.student.rollNo}</p>
+            <h2 className="text-2xl font-bold mb-1">{studentPerformance.student.name}</h2>
+            <p className="text-blue-100">{studentPerformance.student.class} • Roll No: {studentPerformance.student.rollNo}</p>
           </div>
           <div className="text-right">
-            <div className="text-3xl font-bold text-indigo-600">{studentPerformance.student.overallGrade}</div>
-            <div className="text-gray-500 text-sm">Overall Grade</div>
+            <div className="text-3xl font-bold">{studentPerformance.student.overallGrade}</div>
+            <div className="text-blue-100">Overall Grade</div>
           </div>
         </div>
         <div className="mt-6 grid grid-cols-3 gap-4">
-          <div className="bg-gray-50 rounded-lg p-4 text-center">
-            <div className="text-xl font-bold text-gray-900">{studentPerformance.student.overallPercentage}%</div>
-            <div className="text-sm text-gray-500">Average Score</div>
+          <div className="bg-white/20 rounded-lg p-3">
+            <div className="text-2xl font-bold">{studentPerformance.student.overallPercentage}%</div>
+            <div className="text-sm text-blue-100">Average Score</div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 text-center">
-            <div className="text-xl font-bold text-gray-900">#{studentPerformance.student.rank}</div>
-            <div className="text-sm text-gray-500">Class Rank</div>
+          <div className="bg-white/20 rounded-lg p-3">
+            <div className="text-2xl font-bold">#{studentPerformance.student.rank}</div>
+            <div className="text-sm text-blue-100">Class Rank</div>
           </div>
-          <div className="bg-gray-50 rounded-lg p-4 text-center">
-            <div className="text-xl font-bold text-gray-900">{studentPerformance.student.totalStudents}</div>
-            <div className="text-sm text-gray-500">Total Students</div>
+          <div className="bg-white/20 rounded-lg p-3">
+            <div className="text-2xl font-bold">{studentPerformance.student.totalStudents}</div>
+            <div className="text-sm text-blue-100">Total Students</div>
           </div>
         </div>
       </div>
 
       {/* Subject Performance */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+      <div className="bg-white rounded-xl border border-gray-100">
         <div className="p-6 border-b border-gray-100">
           <h3 className="text-lg font-semibold text-gray-900">Subject Performance</h3>
         </div>
-        <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredSubjects.map((subject) => (
-            <div key={subject.name} className="border border-gray-200 rounded-lg p-4 hover:shadow-sm transition">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-gray-900">{subject.name}</h4>
-                <div className="flex items-center gap-2">
-                  {getTrendIcon(subject.trend)}
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getGradeColor(subject.currentGrade)}`}>
-                    {subject.currentGrade}
-                  </span>
+        <div className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredSubjects.map((subject) => (
+              <div key={subject.name} className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-medium text-gray-900">{subject.name}</h4>
+                  <div className="flex items-center gap-2">
+                    {getTrendIcon(subject.trend)}
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getGradeColor(subject.currentGrade)}`}>
+                      {subject.currentGrade}
+                    </span>
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <div className="flex items-center justify-between text-sm mb-1">
+                    <span className="text-gray-600">Progress</span>
+                    <span className="font-medium">{subject.percentage}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full ${
+                        subject.percentage >= 90 ? 'bg-emerald-500' :
+                        subject.percentage >= 80 ? 'bg-blue-500' :
+                        subject.percentage >= 70 ? 'bg-orange-500' :
+                        'bg-red-500'
+                      }`}
+                      style={{ width: `${subject.percentage}%` }}
+                    ></div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-600">
+                  <p>Last Test: {subject.lastTest.score}/{subject.lastTest.total} ({Math.round((subject.lastTest.score / subject.lastTest.total) * 100)}%)</p>
+                  <p>Date: {subject.lastTest.date}</p>
                 </div>
               </div>
-              <div className="mb-3">
-                <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-gray-600">Progress</span>
-                  <span className="font-medium text-gray-900">{subject.percentage}%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className={`h-2 rounded-full ${
-                      subject.percentage >= 90 ? 'bg-emerald-500' :
-                      subject.percentage >= 80 ? 'bg-indigo-500' :
-                      subject.percentage >= 70 ? 'bg-orange-400' :
-                      'bg-red-400'
-                    }`}
-                    style={{ width: `${subject.percentage}%` }}
-                  ></div>
-                </div>
-              </div>
-              <div className="text-xs text-gray-600">
-                <p>Last Test: {subject.lastTest.score}/{subject.lastTest.total} ({Math.round((subject.lastTest.score / subject.lastTest.total) * 100)}%)</p>
-                <p>Date: {subject.lastTest.date}</p>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Monthly Progress */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
+      {/* Exam Performance - Dropdown Version */}
+      <div className="bg-white rounded-xl border border-gray-100">
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+          <h3 className="text-lg font-semibold text-gray-900">Exam Performance</h3>
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-gray-500" />
+            <select
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+              value={selectedExam}
+              onChange={(e) => setSelectedExam(e.target.value)}
+            >
+              <option value="All Exams">All Exams</option>
+              {studentPerformance.examProgress.map((exam) => (
+                <option key={exam.exam} value={exam.exam}>{exam.exam}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="flex flex-col space-y-4">
+            {studentPerformance.examProgress
+              .filter(exam => selectedExam === 'All Exams' || exam.exam === selectedExam)
+              .map((exam, index) => (
+                <div key={index} className="border border-gray-100 rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="font-medium text-gray-900">{exam.exam}</h4>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-700">
+                        {exam.percentage}%
+                      </span>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getGradeColor(exam.grade)}`}>
+                        {exam.grade}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className={`h-2 rounded-full ${exam.percentage >= 90 ? 'bg-emerald-500' : 
+                        exam.percentage >= 80 ? 'bg-blue-500' : 
+                        exam.percentage >= 70 ? 'bg-orange-500' : 'bg-red-500'}`}
+                      style={{ width: `${exam.percentage}%` }}
+                    ></div>
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500">
+                    {exam.percentage >= 85 ? 'Excellent performance' : 
+                     exam.percentage >= 80 ? 'Good performance' : 
+                     exam.percentage >= 75 ? 'Satisfactory performance' : 'Needs improvement'}
+                  </div>
+                </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Test Results */}
+      <div className="bg-white rounded-xl border border-gray-100">
         <div className="p-6 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">Monthly Progress</h3>
-        </div>
-        <div className="p-6 flex h-64 items-end gap-6">
-          {studentPerformance.monthlyProgress.map((month, index) => (
-            <div key={index} className="flex flex-col items-center flex-1">
-              <span className="text-sm text-gray-700 mb-1">{month.percentage}%</span>
-              <div
-                className="w-full bg-indigo-400 rounded-t-md"
-                style={{ height: `${(month.percentage / 100) * 200}px` }}
-              ></div>
-              <span className="text-sm text-gray-500 mt-2">{month.month}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Recent Tests */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100">
-        <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-900">Recent Test Results</h3>
-          <button className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">View All</button>
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-gray-900">Recent Test Results</h3>
+            <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+              View All
+            </button>
+          </div>
         </div>
         <div className="divide-y divide-gray-100">
-          {studentPerformance.recentTests.map((test) => (
+          {studentPerformance.recentTests.slice(0, 5).map((test) => (
             <div key={test.id} className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="p-3 bg-indigo-50 rounded-lg">
-                  <BookOpen className="w-5 h-5 text-indigo-600" />
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <BookOpen className="w-5 h-5 text-blue-600" />
                 </div>
                 <div>
                   <h4 className="font-medium text-gray-900">{test.subject}</h4>
@@ -212,18 +253,21 @@ const PerformanceTracker: React.FC = () => {
                 </div>
               </div>
               <div className="text-right">
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                   <div>
                     <p className="font-medium text-gray-900">{test.score}/{test.total}</p>
                     <p className="text-sm text-gray-600">{test.percentage}%</p>
                   </div>
-                  <div className={`px-2 py-1 text-xs font-medium rounded-full ${
-                    test.percentage >= 90 ? 'bg-emerald-100 text-emerald-700' :
-                    test.percentage >= 80 ? 'bg-indigo-100 text-indigo-700' :
-                    test.percentage >= 70 ? 'bg-orange-100 text-orange-700' :
-                    'bg-red-100 text-red-700'
-                  }`}>
-                    {test.percentage >= 90 ? 'A' : test.percentage >= 80 ? 'B' : test.percentage >= 70 ? 'C' : 'D'}
+                  <div className="text-center">
+                    <p className="text-sm font-medium text-gray-900">Rank #{test.rank}</p>
+                    <div className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
+                      test.percentage >= 90 ? 'bg-emerald-100 text-emerald-800' :
+                      test.percentage >= 80 ? 'bg-blue-100 text-blue-800' :
+                      test.percentage >= 70 ? 'bg-orange-100 text-orange-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {test.percentage >= 90 ? 'A' : test.percentage >= 80 ? 'B' : test.percentage >= 70 ? 'C' : 'D'}
+                    </div>
                   </div>
                 </div>
               </div>

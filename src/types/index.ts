@@ -3,7 +3,7 @@ export interface User {
   name: string;
   email: string;
   phone: string;
-  role: 'PARENT' | 'TEACHER' | 'SCHOOL_ADMIN' | 'PLATFORM_ADMIN';
+  role: 'PARENT' | 'TEACHER' | 'SCHOOL_ADMIN' | 'PLATFORM_ADMIN' | 'STUDENT';
   schoolId: string;
   profilePhoto?: string;
   status: 'ACTIVE' | 'INACTIVE';

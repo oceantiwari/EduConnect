@@ -48,6 +48,16 @@ const mockUsers: User[] = [
     schoolId: 'school1',
     profilePhoto: 'https://images.pexels.com/photos/762020/pexels-photo-762020.jpeg?auto=compress&cs=tinysrgb&w=400',
     status: 'ACTIVE'
+  },
+  {
+    id: '4',
+    name: 'Alex Johnson',
+    email: 'student@demo.com',
+    phone: '+1234567893',
+    role: 'STUDENT',
+    schoolId: 'school1',
+    profilePhoto: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=400',
+    status: 'ACTIVE'
   }
 ];
 

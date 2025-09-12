@@ -1,12 +1,10 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import LandingPage from './components/Landing/LandingPage';
 import LoginPage from './components/Auth/LoginPage';
 import Header from './components/Layout/Header';
 import Sidebar from './components/Layout/Sidebar';
-import ParentDashboard from './components/Dashboard/ParentDashboard';
-import TeacherDashboard from './components/Dashboard/TeacherDashboard';
-import AdminDashboard from './components/Dashboard/AdminDashboard';
+import DashboardContainer from './components/Dashboard/DashboardContainer';
 import AttendanceManager from './components/Attendance/AttendanceManager';
 import PraiseComplaintsManager from './components/PraiseComplaints/PraiseComplaintsManager';
 import SchoolStore from './components/Store/SchoolStore';
@@ -46,14 +44,8 @@ function App() {
 
   const renderMainContent = () => {
     switch (activeTab) {
-      case 'landing':
-        return <LandingPage onGetStarted={() => setActiveTab('dashboard')} />;
-      
       case 'dashboard':
-        if (user.role === 'PARENT') return <ParentDashboard />;
-        if (user.role === 'TEACHER') return <TeacherDashboard />;
-        if (user.role === 'SCHOOL_ADMIN') return <AdminDashboard onNavigate={setActiveTab} />;
-        return <ParentDashboard />;
+        return <DashboardContainer onNavigate={setActiveTab} />;
       
       case 'attendance':
         return <AttendanceManager />;
@@ -101,7 +93,7 @@ function App() {
         );
       
       default:
-        return <ParentDashboard />;
+        return <DashboardContainer onNavigate={setActiveTab} />;
     }
   };
 

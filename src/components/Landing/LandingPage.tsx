@@ -295,7 +295,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                   : "opacity-0 translate-y-4"
               }`}
             >
-              Sign In
+              Get Started
             </button>
           </div>
         </div>

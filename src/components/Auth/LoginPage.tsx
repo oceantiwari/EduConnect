@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { Eye, EyeOff, GraduationCap } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
-const LoginPage: React.FC = () => {
+interface LoginPageProps {
+  onNavigateToSignUp: () => void;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToSignUp }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -123,6 +127,18 @@ const LoginPage: React.FC = () => {
           </div>
           <p className="text-xs text-gray-500 mt-4 text-center">
             Password for all demo accounts: <code className="bg-gray-100 px-2 py-1 rounded">demo123</code>
+          </p>
+        </div>
+
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Don't have an account?{' '}
+            <button
+              onClick={onNavigateToSignUp}
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Sign Up
+            </button>
           </p>
         </div>
       </div>

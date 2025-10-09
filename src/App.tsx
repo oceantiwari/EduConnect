@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import LandingPage from './components/Landing/LandingPage';
 import LoginPage from './components/Auth/LoginPage';
+import SignUpPage from './components/Auth/SignUpPage';
+import Admin2FAVerification from './components/Auth/Admin2FAVerification';
 import Header from './components/Layout/Header';
 import Sidebar from './components/Layout/Sidebar';
 import DashboardContainer from './components/Dashboard/DashboardContainer';
@@ -13,11 +15,15 @@ import EventsManager from './components/Events/EventsManager';
 import PerformanceTracker from './components/Performance/PerformanceTracker';
 import TestsManager from './components/Tests/TestsManager';
 
+type AuthView = 'landing' | 'login' | 'signup' | '2fa';
+
 function App() {
   const { user, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showLanding, setShowLanding] = useState(true);
+  const [authView, setAuthView] = useState<AuthView>('landing');
+  const [pendingUserId, setPendingUserId] = useState('');
+  const [pendingEmail, setPendingEmail] = useState('');
 
   const handleMenuClick = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -36,10 +42,34 @@ function App() {
   }
 
   if (!user) {
-    if (showLanding) {
-      return <LandingPage onGetStarted={() => setShowLanding(false)} />;
+    switch (authView) {
+      case 'landing':
+        return <LandingPage onGetStarted={() => setAuthView('signup')} />;
+
+      case 'signup':
+        return (
+          <SignUpPage
+            onNavigateToLogin={() => setAuthView('login')}
+            onNavigateTo2FA={(userId, email) => {
+              setPendingUserId(userId);
+              setPendingEmail(email);
+              setAuthView('2fa');
+            }}
+          />
+        );
+
+      case '2fa':
+        return (
+          <Admin2FAVerification
+            userId={pendingUserId}
+            email={pendingEmail}
+          />
+        );
+
+      case 'login':
+      default:
+        return <LoginPage onNavigateToSignUp={() => setAuthView('signup')} />;
     }
-    return <LoginPage />;
   }
 
   const renderMainContent = () => {

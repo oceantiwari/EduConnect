@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types';
-import { supabase } from '../lib/supabase';
 
 interface SignupData {
   name: string;
@@ -18,6 +17,7 @@ interface AuthContextType {
   resend2FA: (userId: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  pendingUser: { id: string; data: SignupData } | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -73,12 +73,14 @@ const mockUsers: User[] = [
   }
 ];
 
+const mockOTPs: { [key: string]: string } = {};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [pendingUser, setPendingUser] = useState<{ id: string; data: SignupData } | null>(null);
 
   useEffect(() => {
-    // Check for stored user data
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -89,205 +91,101 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     setIsLoading(true);
 
-    try {
-      const foundUser = mockUsers.find(u => u.email === email);
-      if (foundUser && password === 'demo123') {
-        setUser(foundUser);
-        localStorage.setItem('user', JSON.stringify(foundUser));
-        setIsLoading(false);
-        return;
-      }
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (authError) {
-        throw new Error('Invalid credentials');
-      }
-
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authData.user.id)
-        .maybeSingle();
-
-      if (userError || !userData) {
-        throw new Error('Failed to fetch user data');
-      }
-
-      const user: User = {
-        id: userData.id,
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone,
-        role: userData.role,
-        schoolId: userData.school_id,
-        profilePhoto: userData.profile_photo,
-        status: userData.status,
-      };
-
-      setUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
-    } catch (error) {
-      throw error;
-    } finally {
-      setIsLoading(false);
+    const foundUser = mockUsers.find(u => u.email === email);
+    if (foundUser && password === 'demo123') {
+      setUser(foundUser);
+      localStorage.setItem('user', JSON.stringify(foundUser));
+    } else {
+      throw new Error('Invalid credentials');
     }
+
+    setIsLoading(false);
   };
 
   const signup = async (data: SignupData): Promise<string> => {
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-    });
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    if (authError) {
-      throw new Error(authError.message);
+    const existingUser = mockUsers.find(u => u.email === data.email);
+    if (existingUser) {
+      throw new Error('An account with this email already exists');
     }
 
-    if (!authData.user) {
-      throw new Error('Failed to create account');
-    }
-
-    const { error: userError } = await supabase.from('users').insert({
-      id: authData.user.id,
-      email: data.email,
-      name: data.name,
-      phone: data.phone || null,
-      role: data.role,
-      school_id: null,
-      status: 'ACTIVE',
-    });
-
-    if (userError) {
-      throw new Error('Failed to save user data');
-    }
+    const userId = `user_${Date.now()}`;
 
     if (data.role === 'PLATFORM_ADMIN') {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-2fa-otp`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            userId: authData.user.id,
-            email: data.email,
-          }),
-        }
-      );
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      mockOTPs[userId] = otp;
 
-      if (!response.ok) {
-        throw new Error('Failed to send verification code');
-      }
+      console.log(`[MOCK] OTP for ${data.email}: ${otp}`);
+
+      setPendingUser({ id: userId, data });
+
+      return userId;
     } else {
-      const user: User = {
-        id: authData.user.id,
+      const newUser: User = {
+        id: userId,
         name: data.name,
         email: data.email,
         phone: data.phone,
         role: data.role,
-        schoolId: '',
+        schoolId: 'school1',
         status: 'ACTIVE',
       };
 
-      setUser(user);
-      localStorage.setItem('user', JSON.stringify(user));
-    }
+      mockUsers.push(newUser);
+      setUser(newUser);
+      localStorage.setItem('user', JSON.stringify(newUser));
 
-    return authData.user.id;
+      return userId;
+    }
   };
 
   const verify2FA = async (userId: string, otpCode: string): Promise<void> => {
-    const { data: otpRecords, error: fetchError } = await supabase
-      .from('two_factor_auth')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('verified', false)
-      .order('created_at', { ascending: false })
-      .limit(1);
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    if (fetchError || !otpRecords || otpRecords.length === 0) {
+    const storedOTP = mockOTPs[userId];
+    if (!storedOTP) {
       throw new Error('No verification code found');
     }
 
-    const otpRecord = otpRecords[0];
-
-    if (new Date(otpRecord.otp_expires_at) < new Date()) {
-      throw new Error('Verification code has expired');
-    }
-
-    if (otpRecord.otp_code !== otpCode) {
+    if (storedOTP !== otpCode) {
       throw new Error('Invalid verification code');
     }
 
-    const { error: updateError } = await supabase
-      .from('two_factor_auth')
-      .update({ verified: true })
-      .eq('id', otpRecord.id);
+    if (pendingUser && pendingUser.id === userId) {
+      const newUser: User = {
+        id: userId,
+        name: pendingUser.data.name,
+        email: pendingUser.data.email,
+        phone: pendingUser.data.phone,
+        role: pendingUser.data.role,
+        schoolId: 'school1',
+        status: 'ACTIVE',
+      };
 
-    if (updateError) {
-      throw new Error('Failed to verify code');
+      mockUsers.push(newUser);
+      setUser(newUser);
+      localStorage.setItem('user', JSON.stringify(newUser));
+      setPendingUser(null);
+      delete mockOTPs[userId];
+    } else {
+      throw new Error('User verification failed');
     }
-
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .maybeSingle();
-
-    if (userError || !userData) {
-      throw new Error('Failed to fetch user data');
-    }
-
-    const user: User = {
-      id: userData.id,
-      name: userData.name,
-      email: userData.email,
-      phone: userData.phone,
-      role: userData.role,
-      schoolId: userData.school_id,
-      profilePhoto: userData.profile_photo,
-      status: userData.status,
-    };
-
-    setUser(user);
-    localStorage.setItem('user', JSON.stringify(user));
   };
 
   const resend2FA = async (userId: string): Promise<void> => {
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('email')
-      .eq('id', userId)
-      .maybeSingle();
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    if (userError || !userData) {
-      throw new Error('Failed to fetch user data');
+    if (!pendingUser || pendingUser.id !== userId) {
+      throw new Error('No pending verification found');
     }
 
-    const response = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-2fa-otp`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({
-          userId,
-          email: userData.email,
-        }),
-      }
-    );
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    mockOTPs[userId] = otp;
 
-    if (!response.ok) {
-      throw new Error('Failed to resend verification code');
-    }
+    console.log(`[MOCK] New OTP for ${pendingUser.data.email}: ${otp}`);
   };
 
   const logout = () => {
@@ -296,7 +194,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, verify2FA, resend2FA, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, signup, verify2FA, resend2FA, logout, isLoading, pendingUser }}>
       {children}
     </AuthContext.Provider>
   );

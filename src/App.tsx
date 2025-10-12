@@ -14,6 +14,7 @@ import AnnouncementsManager from './components/Announcements/AnnouncementsManage
 import EventsManager from './components/Events/EventsManager';
 import PerformanceTracker from './components/Performance/PerformanceTracker';
 import TestsManager from './components/Tests/TestsManager';
+import ChildRequestsManager from './components/Admin/ChildRequestsManager';
 
 type AuthView = 'landing' | 'login' | 'signup' | '2fa';
 
@@ -97,7 +98,10 @@ function App() {
       
       case 'tests':
         return <TestsManager />;
-      
+
+      case 'child-requests':
+        return <ChildRequestsManager adminId={user.id} />;
+
       case 'students':
         return (
           <div className="p-6">

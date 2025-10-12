@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserCheck, BarChart3, Star, ShoppingBag } from 'lucide-react';
+import { UserCheck, BarChart3, Star, ShoppingBag, UserPlus } from 'lucide-react';
 import DashboardHeader from '../Shared/DashboardHeader';
 import StatCard from '../Shared/StatCard';
 import StudentCard from './StudentCard';
@@ -7,19 +7,22 @@ import AttendanceStatus from './AttendanceStatus';
 import RecentPraise from './RecentPraise';
 import UpcomingTests from './UpcomingTests';
 import ParentQuickActions from './ParentQuickActions';
+import AddChildModal from '../../Parent/AddChildModal';
 
 interface ParentDashboardProps {
   onNavigate?: (tab: string) => void;
 }
 
 const ParentDashboard: React.FC<ParentDashboardProps> = ({ onNavigate }) => {
+  const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
+
   const studentInfo = {
     name: 'Emma Johnson',
     class: 'Grade 5-A',
     rollNo: '15',
     profilePhoto: 'https://images.pexels.com/photos/712513/pexels-photo-712513.jpeg?auto=compress&cs=tinysrgb&w=400'
   };
-  
+
   const [todayAttendance, setTodayAttendance] = useState({
     parentStatus: {
       status: 'NOT_LEFT',
@@ -80,7 +83,15 @@ const ParentDashboard: React.FC<ParentDashboardProps> = ({ onNavigate }) => {
       <DashboardHeader
         title="Welcome Back!"
         subtitle={`Here's what's happening with ${studentInfo.name} today`}
-      />
+      >
+        <button
+          onClick={() => setIsAddChildModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+        >
+          <UserPlus className="w-4 h-4" />
+          Add Child
+        </button>
+      </DashboardHeader>
 
       <StudentCard 
         studentInfo={studentInfo}
@@ -107,6 +118,15 @@ const ParentDashboard: React.FC<ParentDashboardProps> = ({ onNavigate }) => {
           <ParentQuickActions onNavigate={onNavigate} />
         </div>
       </div>
+
+      <AddChildModal
+        isOpen={isAddChildModalOpen}
+        onClose={() => setIsAddChildModalOpen(false)}
+        parentId="1"
+        onSuccess={() => {
+          alert('Request submitted successfully! The admin will review your request.');
+        }}
+      />
     </div>
   );
 };

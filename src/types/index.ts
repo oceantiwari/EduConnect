@@ -146,3 +146,17 @@ export interface Notification {
   createdAt: string;
   actionUrl?: string;
 }
+
+export interface ChildRequest {
+  id: string;
+  parentId: string;
+  studentAdmissionNo: string;
+  studentName: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  requestReason?: string;
+  adminResponse?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}

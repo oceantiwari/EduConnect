@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
-  Users, 
-  GraduationCap, 
+import {
+  Users,
+  GraduationCap,
   DollarSign,
   UserCheck,
   MessageSquare,
@@ -10,7 +10,8 @@ import {
   BarChart3,
   Bell,
   Settings,
-  FileText
+  FileText,
+  UserPlus
 } from 'lucide-react';
 import DashboardHeader from '../Shared/DashboardHeader';
 import StatCard from '../Shared/StatCard';
@@ -138,13 +139,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
 
   const quickActions = [
     {
-      icon: Users,
-      title: 'Manage Students',
-      description: 'Add, edit, or view student records',
+      icon: UserPlus,
+      title: 'Child Requests',
+      description: 'Review parent-child linking requests',
       color: 'text-blue-600',
       bg: 'bg-blue-50',
       hoverBg: 'hover:bg-blue-50',
       hoverBorder: 'hover:border-blue-200',
+      action: () => onNavigate?.('child-requests')
+    },
+    {
+      icon: Users,
+      title: 'Manage Students',
+      description: 'Add, edit, or view student records',
+      color: 'text-teal-600',
+      bg: 'bg-teal-50',
+      hoverBg: 'hover:bg-teal-50',
+      hoverBorder: 'hover:border-teal-200',
       action: () => onNavigate?.('students')
     },
     {

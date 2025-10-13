@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Users,
   GraduationCap,
@@ -19,6 +19,7 @@ import RevenueOverview from './RevenueOverview';
 import SystemAlerts from './SystemAlerts';
 import RecentActivity from './RecentActivity';
 import QuickActions from './QuickActions';
+import { childRequestService } from '../../../services/childRequestService';
 
 interface AdminDashboardProps {
   onNavigate?: (tab: string) => void;
@@ -27,6 +28,16 @@ interface AdminDashboardProps {
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('month');
   const [showQuickActions, setShowQuickActions] = useState(false);
+  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+
+  useEffect(() => {
+    loadPendingRequests();
+  }, []);
+
+  const loadPendingRequests = async () => {
+    const count = await childRequestService.getPendingRequestsCount();
+    setPendingRequestsCount(count);
+  };
 
   const schoolStats = {
     totalStudents: 450,
@@ -141,7 +152,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
     {
       icon: UserPlus,
       title: 'Child Requests',
-      description: 'Review parent-child linking requests',
+      description: `${pendingRequestsCount} pending ${pendingRequestsCount === 1 ? 'request' : 'requests'}`,
       color: 'text-blue-600',
       bg: 'bg-blue-50',
       hoverBg: 'hover:bg-blue-50',

@@ -15,6 +15,11 @@ interface ParentDashboardProps {
 
 const ParentDashboard: React.FC<ParentDashboardProps> = ({ onNavigate }) => {
   const [isAddChildModalOpen, setIsAddChildModalOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleRequestSuccess = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   const studentInfo = {
     name: 'Emma Johnson',
@@ -123,9 +128,7 @@ const ParentDashboard: React.FC<ParentDashboardProps> = ({ onNavigate }) => {
         isOpen={isAddChildModalOpen}
         onClose={() => setIsAddChildModalOpen(false)}
         parentId="1"
-        onSuccess={() => {
-          alert('Request submitted successfully! The admin will review your request.');
-        }}
+        onSuccess={handleRequestSuccess}
       />
     </div>
   );

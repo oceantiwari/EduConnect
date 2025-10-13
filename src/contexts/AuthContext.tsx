@@ -118,7 +118,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       mockOTPs[userId] = otp;
 
-      console.log(`[MOCK] OTP for ${data.email}: ${otp}`);
+      console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #3b82f6; font-weight: bold');
+      console.log('%c🔐 ADMIN 2FA VERIFICATION CODE', 'color: #3b82f6; font-weight: bold; font-size: 16px');
+      console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #3b82f6; font-weight: bold');
+      console.log(`%cEmail: ${data.email}`, 'color: #10b981; font-size: 14px');
+      console.log(`%cYour OTP Code: ${otp}`, 'color: #f59e0b; font-weight: bold; font-size: 18px; background: #fef3c7; padding: 8px; border-radius: 4px');
+      console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #3b82f6; font-weight: bold');
+      console.log('%cEnter this code on the verification page', 'color: #6b7280; font-style: italic');
+      console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #3b82f6; font-weight: bold');
 
       setPendingUser({ id: userId, data });
 
@@ -185,7 +192,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     mockOTPs[userId] = otp;
 
-    console.log(`[MOCK] New OTP for ${pendingUser.data.email}: ${otp}`);
+    console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #3b82f6; font-weight: bold');
+    console.log('%c🔄 NEW 2FA CODE GENERATED', 'color: #3b82f6; font-weight: bold; font-size: 16px');
+    console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #3b82f6; font-weight: bold');
+    console.log(`%cEmail: ${pendingUser.data.email}`, 'color: #10b981; font-size: 14px');
+    console.log(`%cYour New OTP Code: ${otp}`, 'color: #f59e0b; font-weight: bold; font-size: 18px; background: #fef3c7; padding: 8px; border-radius: 4px');
+    console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #3b82f6; font-weight: bold');
   };
 
   const logout = () => {

@@ -4,9 +4,10 @@ import { Shield, CheckCircle, Clock, Heart, Bell, Star, ArrowRight } from 'lucid
 interface HeroSectionProps {
   isVisible: boolean;
   onGetStarted: () => void;
+  onWatchDemo: () => void;
 }
 
-const HeroSection: React.FC<HeroSectionProps> = ({ isVisible, onGetStarted }) => {
+const HeroSection: React.FC<HeroSectionProps> = ({ isVisible, onGetStarted, onWatchDemo }) => {
   const students = [
     {
       name: "Emma Johnson",
@@ -64,7 +65,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({ isVisible, onGetStarted }) =>
                 Get Started Free
                 <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
-              <button className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:border-gray-400 hover:scale-105 transform transition-all duration-300 text-lg">
+              <button
+                onClick={onWatchDemo}
+                className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:border-gray-400 hover:scale-105 transform transition-all duration-300 text-lg"
+              >
                 Watch Demo
               </button>
             </div>

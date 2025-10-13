@@ -4,9 +4,10 @@ import { ArrowRight } from 'lucide-react';
 interface CTASectionProps {
   sectionsRef: React.MutableRefObject<HTMLElement[]>;
   onGetStarted: () => void;
+  onScheduleDemo: () => void;
 }
 
-const CTASection: React.FC<CTASectionProps> = ({ sectionsRef, onGetStarted }) => {
+const CTASection: React.FC<CTASectionProps> = ({ sectionsRef, onGetStarted, onScheduleDemo }) => {
   return (
     <section
       className="py-20 bg-gradient-to-r from-blue-600 to-emerald-600 opacity-0 transition-all duration-700"
@@ -28,7 +29,10 @@ const CTASection: React.FC<CTASectionProps> = ({ sectionsRef, onGetStarted }) =>
             Start Free Trial
             <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
           </button>
-          <button className="px-8 py-4 border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-blue-600 hover:scale-105 transform transition-all duration-300 text-lg">
+          <button
+            onClick={onScheduleDemo}
+            className="px-8 py-4 border-2 border-white text-white rounded-xl font-semibold hover:bg-white hover:text-blue-600 hover:scale-105 transform transition-all duration-300 text-lg"
+          >
             Schedule Demo
           </button>
         </div>

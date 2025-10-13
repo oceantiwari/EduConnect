@@ -1,75 +1,40 @@
-import { supabase } from '../lib/supabase';
-import type { Student } from '../types';
+import { Student } from '../types';
+
+const mockStudents: Student[] = [];
 
 export const studentService = {
-  async getStudentsByParent(parentId: string): Promise<Student[]> {
-    try {
-      const { data, error } = await supabase
-        .from('parent_student_links')
-        .select(`
-          student_id,
-          students (
-            id,
-            first_name,
-            last_name,
-            admission_no,
-            class_id,
-            section,
-            roll_no,
-            profile_photo
-          )
-        `)
-        .eq('parent_id', parentId);
-
-      if (error) throw error;
-
-      return (data || [])
-        .filter(item => item.students)
-        .map(item => {
-          const student = Array.isArray(item.students) ? item.students[0] : item.students;
-          return {
-            id: student.id,
-            firstName: student.first_name,
-            lastName: student.last_name,
-            admissionNo: student.admission_no,
-            classId: student.class_id,
-            section: student.section,
-            rollNo: student.roll_no,
-            parentIds: [parentId],
-            profilePhoto: student.profile_photo
-          };
-        });
-    } catch (error) {
-      console.error('Error fetching students:', error);
-      return [];
-    }
+  async getStudentsByParentId(parentId: string): Promise<Student[]> {
+    return mockStudents.filter(s => s.parentIds.includes(parentId));
   },
 
-  async getStudentByAdmission(admissionNo: string): Promise<Student | null> {
-    try {
-      const { data, error } = await supabase
-        .from('students')
-        .select('*')
-        .eq('admission_no', admissionNo)
-        .maybeSingle();
+  async getStudentById(studentId: string): Promise<Student | null> {
+    return mockStudents.find(s => s.id === studentId) || null;
+  },
 
-      if (error) throw error;
-      if (!data) return null;
+  async createStudent(data: Omit<Student, 'id'>): Promise<{ success: boolean; student?: Student }> {
+    const newStudent: Student = {
+      id: `student_${Date.now()}`,
+      ...data,
+    };
+    mockStudents.push(newStudent);
+    return { success: true, student: newStudent };
+  },
 
-      return {
-        id: data.id,
-        firstName: data.first_name,
-        lastName: data.last_name,
-        admissionNo: data.admission_no,
-        classId: data.class_id,
-        section: data.section,
-        rollNo: data.roll_no,
-        parentIds: [],
-        profilePhoto: data.profile_photo
-      };
-    } catch (error) {
-      console.error('Error fetching student:', error);
-      return null;
+  async updateStudent(studentId: string, data: Partial<Student>): Promise<{ success: boolean }> {
+    const index = mockStudents.findIndex(s => s.id === studentId);
+    if (index !== -1) {
+      mockStudents[index] = { ...mockStudents[index], ...data };
+      return { success: true };
     }
-  }
+    return { success: false };
+  },
+
+  async deleteStudent(studentId: string): Promise<{ success: boolean }> {
+    const index = mockStudents.findIndex(s => s.id === studentId);
+    if (index !== -1) {
+      mockStudents.splice(index, 1);
+      return { success: true };
+    }
+    return { success: false };
+  },
 };

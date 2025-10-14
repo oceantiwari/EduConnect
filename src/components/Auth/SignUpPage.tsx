@@ -1,20 +1,29 @@
-import React, { useState } from 'react';
-import { Eye, EyeOff, GraduationCap, Shield, User } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { Eye, EyeOff, GraduationCap, Users, BookOpen, CheckCircle, Loader2 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 interface SignUpPageProps {
   onNavigateToLogin: () => void;
   onNavigateTo2FA: (userId: string, email: string) => void;
 }
 
-type UserRole = 'SCHOOL_ADMIN' | 'PLATFORM_ADMIN';
+type UserRole = 'PARENT' | 'TEACHER';
 
-const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo2FA }) => {
+interface School {
+  id: string;
+  name: string;
+}
+
+const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin }) => {
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+  const [schools, setSchools] = useState<School[]>([]);
+  const [loadingSchools, setLoadingSchools] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
+    schoolId: '',
+    reason: '',
     password: '',
     confirmPassword: ''
   });
@@ -22,13 +31,35 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signup } = useAuth();
+  const [success, setSuccess] = useState(false);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    fetchSchools();
+  }, []);
+
+  const fetchSchools = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('schools')
+        .select('id, name')
+        .order('name');
+
+      if (error) throw error;
+
+      setSchools(data || []);
+    } catch (err) {
+      console.error('Error fetching schools:', err);
+    } finally {
+      setLoadingSchools(false);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    if (error) setError('');
   };
 
   const validateForm = (): boolean => {
@@ -50,6 +81,11 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError('Please enter a valid email address');
+      return false;
+    }
+
+    if (!formData.schoolId) {
+      setError('Please select a school');
       return false;
     }
 
@@ -82,19 +118,41 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
     setIsLoading(true);
 
     try {
-      const userId = await signup({
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        password: formData.password,
-        role: selectedRole!
-      });
+      const { error: insertError } = await supabase
+        .from('user_registration_requests')
+        .insert({
+          email: formData.email.trim(),
+          name: formData.name.trim(),
+          phone: formData.phone.trim() || null,
+          role: selectedRole,
+          school_id: formData.schoolId,
+          request_reason: formData.reason.trim() || null,
+          status: 'PENDING'
+        });
 
-      if (selectedRole === 'PLATFORM_ADMIN') {
-        onNavigateTo2FA(userId, formData.email);
+      if (insertError) {
+        if (insertError.code === '23505') {
+          setError('You already have a pending registration request with this email.');
+        } else {
+          throw insertError;
+        }
+        return;
       }
+
+      setSuccess(true);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        schoolId: '',
+        reason: '',
+        password: '',
+        confirmPassword: ''
+      });
+      setSelectedRole(null);
+
     } catch (err: any) {
-      setError(err.message || 'Failed to create account. Please try again.');
+      setError(err.message || 'Failed to submit registration request. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -102,20 +160,53 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
 
   const roles = [
     {
-      value: 'SCHOOL_ADMIN' as UserRole,
-      title: 'Employee',
-      description: 'Teachers, Staff, and School Administrators',
-      icon: User,
+      value: 'PARENT' as UserRole,
+      title: 'Parent',
+      description: 'Access your child\'s information and school updates',
+      icon: Users,
       color: 'blue'
     },
     {
-      value: 'PLATFORM_ADMIN' as UserRole,
-      title: 'Admin',
-      description: 'Platform Administrators with full access',
-      icon: Shield,
-      color: 'purple'
+      value: 'TEACHER' as UserRole,
+      title: 'Teacher',
+      description: 'Manage classes, students, and attendance',
+      icon: BookOpen,
+      color: 'green'
     }
   ];
+
+  if (success) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full">
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 text-center">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+              <CheckCircle className="w-8 h-8 text-green-600" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">Registration Request Submitted!</h2>
+            <p className="text-gray-600 mb-6">
+              Your registration request has been sent to the school admin for approval.
+              You will receive an email once your account is reviewed.
+            </p>
+            <div className="space-y-3">
+              <button
+                onClick={onNavigateToLogin}
+                className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+              >
+                Return to Login
+              </button>
+              <button
+                onClick={() => setSuccess(false)}
+                className="w-full bg-white text-gray-700 py-3 rounded-lg font-medium border border-gray-300 hover:bg-gray-50 transition-colors"
+              >
+                Submit Another Request
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-emerald-50 flex items-center justify-center p-4">
@@ -124,7 +215,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
           <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl mb-4">
             <GraduationCap className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Register Account</h1>
           <p className="text-gray-600">Join KidSafe Kids Safety Attendance System</p>
         </div>
 
@@ -132,7 +223,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Select Your Role
+                I am a <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {roles.map((role) => (
@@ -142,7 +233,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
                     onClick={() => setSelectedRole(role.value)}
                     className={`p-6 rounded-xl border-2 transition-all text-left ${
                       selectedRole === role.value
-                        ? `border-${role.color}-600 bg-${role.color}-50`
+                        ? 'border-blue-600 bg-blue-50'
                         : 'border-gray-200 hover:border-gray-300'
                     }`}
                   >
@@ -150,7 +241,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
                       <div
                         className={`w-12 h-12 rounded-lg flex items-center justify-center ${
                           selectedRole === role.value
-                            ? `bg-${role.color}-600`
+                            ? 'bg-blue-600'
                             : 'bg-gray-100'
                         }`}
                       >
@@ -172,25 +263,9 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
 
             {selectedRole && (
               <>
-                {selectedRole === 'PLATFORM_ADMIN' && (
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                    <div className="flex gap-3">
-                      <Shield className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-amber-900 mb-1">
-                          Two-Factor Authentication Required
-                        </p>
-                        <p className="text-sm text-amber-700">
-                          Admin accounts require email verification via OTP for enhanced security.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="name"
@@ -200,13 +275,14 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     placeholder="Enter your full name"
+                    disabled={isLoading}
                     required
                   />
                 </div>
 
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
+                    Email Address <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="email"
@@ -216,6 +292,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     placeholder="Enter your email"
+                    disabled={isLoading}
                     required
                   />
                 </div>
@@ -232,12 +309,61 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     placeholder="Enter your phone number"
+                    disabled={isLoading}
                   />
                 </div>
 
                 <div>
+                  <label htmlFor="schoolId" className="block text-sm font-medium text-gray-700 mb-2">
+                    Select School <span className="text-red-500">*</span>
+                  </label>
+                  {loadingSchools ? (
+                    <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                      <span className="text-gray-500">Loading schools...</span>
+                    </div>
+                  ) : (
+                    <select
+                      id="schoolId"
+                      name="schoolId"
+                      value={formData.schoolId}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      disabled={isLoading}
+                      required
+                    >
+                      <option value="">Choose your school</option>
+                      {schools.map((school) => (
+                        <option key={school.id} value={school.id}>
+                          {school.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
+                    Why do you want to register? (Optional)
+                  </label>
+                  <textarea
+                    id="reason"
+                    name="reason"
+                    value={formData.reason}
+                    onChange={handleInputChange}
+                    rows={3}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                    placeholder="Provide any additional information that might help with your registration..."
+                    disabled={isLoading}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    This helps the school admin process your request faster
+                  </p>
+                </div>
+
+                <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                    Password
+                    Password <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -248,6 +374,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       placeholder="Create a password"
+                      disabled={isLoading}
                       required
                     />
                     <button
@@ -263,7 +390,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
 
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirm Password
+                    Confirm Password <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -274,6 +401,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
                       onChange={handleInputChange}
                       className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       placeholder="Confirm your password"
+                      disabled={isLoading}
                       required
                     />
                     <button
@@ -292,12 +420,26 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo
                   </div>
                 )}
 
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm text-blue-900">
+                    <span className="font-medium">Note:</span> Your registration request will be reviewed by the school admin.
+                    You will receive an email notification once your account is approved.
+                  </p>
+                </div>
+
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
                 >
-                  {isLoading ? 'Creating Account...' : 'Create Account'}
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Submitting Request...
+                    </>
+                  ) : (
+                    'Submit Registration Request'
+                  )}
                 </button>
               </>
             )}

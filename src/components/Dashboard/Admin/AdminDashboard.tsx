@@ -20,6 +20,7 @@ import SystemAlerts from './SystemAlerts';
 import RecentActivity from './RecentActivity';
 import QuickActions from './QuickActions';
 import { childRequestService } from '../../../services/childRequestService';
+import { userRegistrationService } from '../../../services/userRegistrationService';
 
 interface AdminDashboardProps {
   onNavigate?: (tab: string) => void;
@@ -29,14 +30,18 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
   const [selectedTimeframe, setSelectedTimeframe] = useState('month');
   const [showQuickActions, setShowQuickActions] = useState(false);
   const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+  const [pendingRegistrationsCount, setPendingRegistrationsCount] = useState(0);
 
   useEffect(() => {
-    loadPendingRequests();
+    loadMetrics();
   }, []);
 
-  const loadPendingRequests = async () => {
-    const count = await childRequestService.getPendingRequestsCount();
-    setPendingRequestsCount(count);
+  const loadMetrics = async () => {
+    const childRequestsCount = await childRequestService.getPendingRequestsCount();
+    setPendingRequestsCount(childRequestsCount);
+
+    const registrationsCount = await userRegistrationService.getPendingRequestsCount('a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11');
+    setPendingRegistrationsCount(registrationsCount);
   };
 
   const schoolStats = {
@@ -150,13 +155,23 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) => {
 
   const quickActions = [
     {
-      icon: UserPlus,
-      title: 'Child Requests',
-      description: `${pendingRequestsCount} pending ${pendingRequestsCount === 1 ? 'request' : 'requests'}`,
+      icon: UserCheck,
+      title: 'User Registrations',
+      description: `${pendingRegistrationsCount} pending ${pendingRegistrationsCount === 1 ? 'registration' : 'registrations'}`,
       color: 'text-blue-600',
       bg: 'bg-blue-50',
       hoverBg: 'hover:bg-blue-50',
       hoverBorder: 'hover:border-blue-200',
+      action: () => onNavigate?.('user-registrations')
+    },
+    {
+      icon: UserPlus,
+      title: 'Child Requests',
+      description: `${pendingRequestsCount} pending ${pendingRequestsCount === 1 ? 'request' : 'requests'}`,
+      color: 'text-teal-600',
+      bg: 'bg-teal-50',
+      hoverBg: 'hover:bg-teal-50',
+      hoverBorder: 'hover:border-teal-200',
       action: () => onNavigate?.('child-requests')
     },
     {

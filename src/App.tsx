@@ -15,6 +15,7 @@ import EventsManager from './components/Events/EventsManager';
 import PerformanceTracker from './components/Performance/PerformanceTracker';
 import TestsManager from './components/Tests/TestsManager';
 import ChildRequestsManager from './components/Admin/ChildRequestsManager';
+import UserRegistrationsManager from './components/Admin/UserRegistrationsManager';
 
 type AuthView = 'landing' | 'login' | 'signup' | '2fa';
 
@@ -101,6 +102,9 @@ function App() {
 
       case 'child-requests':
         return <ChildRequestsManager adminId={user.id} />;
+
+      case 'user-registrations':
+        return <UserRegistrationsManager adminId={user.id} schoolId={user.schoolId} />;
 
       case 'students':
         return (

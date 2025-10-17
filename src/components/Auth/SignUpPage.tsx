@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, GraduationCap, Users, BookOpen, CheckCircle, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { schoolService } from '../../services/schoolService';
 
 interface SignUpPageProps {
   onNavigateToLogin: () => void;
@@ -38,17 +39,12 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin }) => {
   }, []);
 
   const fetchSchools = async () => {
+    setLoadingSchools(true);
     try {
-      const { data, error } = await supabase
-        .from('schools')
-        .select('id, name')
-        .order('name');
-
-      if (error) throw error;
-
-      setSchools(data || []);
-    } catch (err) {
-      console.error('Error fetching schools:', err);
+      const response = await schoolService.getSchools();
+      setSchools(response);
+    } catch (error) {
+      console.error("Error fetching schools:", error);
     } finally {
       setLoadingSchools(false);
     }
@@ -231,24 +227,21 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin }) => {
                     key={role.value}
                     type="button"
                     onClick={() => setSelectedRole(role.value)}
-                    className={`p-6 rounded-xl border-2 transition-all text-left ${
-                      selectedRole === role.value
-                        ? 'border-blue-600 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
+                    className={`p-6 rounded-xl border-2 transition-all text-left ${selectedRole === role.value
+                      ? 'border-blue-600 bg-blue-50'
+                      : 'border-gray-200 hover:border-gray-300'
+                      }`}
                   >
                     <div className="flex items-start gap-4">
                       <div
-                        className={`w-12 h-12 rounded-lg flex items-center justify-center ${
-                          selectedRole === role.value
-                            ? 'bg-blue-600'
-                            : 'bg-gray-100'
-                        }`}
+                        className={`w-12 h-12 rounded-lg flex items-center justify-center ${selectedRole === role.value
+                          ? 'bg-blue-600'
+                          : 'bg-gray-100'
+                          }`}
                       >
                         <role.icon
-                          className={`w-6 h-6 ${
-                            selectedRole === role.value ? 'text-white' : 'text-gray-600'
-                          }`}
+                          className={`w-6 h-6 ${selectedRole === role.value ? 'text-white' : 'text-gray-600'
+                            }`}
                         />
                       </div>
                       <div className="flex-1">
@@ -313,54 +306,37 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin }) => {
                   />
                 </div>
 
-                <div>
-                  <label htmlFor="schoolId" className="block text-sm font-medium text-gray-700 mb-2">
-                    Select School <span className="text-red-500">*</span>
-                  </label>
-                  {loadingSchools ? (
-                    <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
-                      <span className="text-gray-500">Loading schools...</span>
-                    </div>
-                  ) : (
-                    <select
-                      id="schoolId"
-                      name="schoolId"
-                      value={formData.schoolId}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      disabled={isLoading}
-                      required
-                    >
-                      <option value="">Choose your school</option>
-                      {schools.map((school) => (
-                        <option key={school.id} value={school.id}>
-                          {school.name}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
+                {selectedRole === 'TEACHER' &&
 
-                <div>
-                  <label htmlFor="reason" className="block text-sm font-medium text-gray-700 mb-2">
-                    Why do you want to register? (Optional)
-                  </label>
-                  <textarea
-                    id="reason"
-                    name="reason"
-                    value={formData.reason}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
-                    placeholder="Provide any additional information that might help with your registration..."
-                    disabled={isLoading}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    This helps the school admin process your request faster
-                  </p>
-                </div>
-
+                  <div>
+                    <label htmlFor="schoolId" className="block text-sm font-medium text-gray-700 mb-2">
+                      Select School <span className="text-red-500">*</span>
+                    </label>
+                    {loadingSchools ? (
+                      <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                        <span className="text-gray-500">Loading schools...</span>
+                      </div>
+                    ) : (
+                      <select
+                        id="schoolId"
+                        name="schoolId"
+                        value={formData.schoolId}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        disabled={isLoading}
+                        required
+                      >
+                        <option selected value="" >Choose your school</option>
+                        {schools.map((school) => (
+                          <option key={school.id} value={school.id}>
+                            {school.name}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </div>
+                }
                 <div>
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                     Password <span className="text-red-500">*</span>
@@ -420,12 +396,17 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin }) => {
                   </div>
                 )}
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-sm text-blue-900">
-                    <span className="font-medium">Note:</span> Your registration request will be reviewed by the school admin.
-                    You will receive an email notification once your account is approved.
-                  </p>
-                </div>
+                {
+                  selectedRole === 'TEACHER' &&
+
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-900">
+                      <span className="font-medium">Note:</span> Your registration request will be reviewed by the school admin.
+                      You will receive an email notification once your account is approved.
+                    </p>
+                  </div>
+                }
+
 
                 <button
                   type="submit"

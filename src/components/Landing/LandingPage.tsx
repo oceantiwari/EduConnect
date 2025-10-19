@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import LandingHeader from './LandingHeader';
 import HeroSection from './HeroSection';
 import StatsSection from './StatsSection';
@@ -11,10 +12,19 @@ import LandingFooter from './LandingFooter';
 import VideoModal from './VideoModal';
 
 interface LandingPageProps {
-  onGetStarted: () => void;
+  onGetStarted?: () => void;
 }
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+  const navigate = useNavigate();
+
+  const handleGetStarted = () => {
+    if (onGetStarted) {
+      onGetStarted();
+    } else {
+      navigate('/signup');
+    }
+  };
   const [isVisible, setIsVisible] = useState(false);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [showDemoScheduled, setShowDemoScheduled] = useState(false);
@@ -120,14 +130,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         </div>
       )}
 
-      <LandingHeader isVisible={isVisible} onGetStarted={onGetStarted} />
-      <HeroSection isVisible={isVisible} onGetStarted={onGetStarted} onWatchDemo={handleWatchDemo} />
+      <LandingHeader isVisible={isVisible} onGetStarted={handleGetStarted} />
+      <HeroSection isVisible={isVisible} onGetStarted={handleGetStarted} onWatchDemo={handleWatchDemo} />
       <StatsSection sectionsRef={sectionsRef} />
       <FeaturesSection sectionsRef={sectionsRef} />
       <HowItWorksSection sectionsRef={sectionsRef} />
       <TestimonialsSection sectionsRef={sectionsRef} />
       <FAQSection sectionsRef={sectionsRef} />
-      <CTASection sectionsRef={sectionsRef} onGetStarted={onGetStarted} onScheduleDemo={handleScheduleDemo} />
+      <CTASection sectionsRef={sectionsRef} onGetStarted={handleGetStarted} onScheduleDemo={handleScheduleDemo} />
       <LandingFooter />
       <VideoModal isOpen={showVideoModal} onClose={() => setShowVideoModal(false)} />
     </div>

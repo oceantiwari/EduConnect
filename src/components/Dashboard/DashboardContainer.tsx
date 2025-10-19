@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import AdminDashboard from './Admin/AdminDashboard';
 import TeacherDashboard from './Teacher/TeacherDashboard';
@@ -10,6 +11,15 @@ interface DashboardContainerProps {
 }
 
 const DashboardContainer: React.FC<DashboardContainerProps> = ({ onNavigate }) => {
+  const navigate = useNavigate();
+
+  const handleNavigate = (tab: string) => {
+    if (onNavigate) {
+      onNavigate(tab);
+    } else {
+      navigate(`/${tab}`);
+    }
+  };
   const { user } = useAuth();
 
   if (!user) {
@@ -25,20 +35,19 @@ const DashboardContainer: React.FC<DashboardContainerProps> = ({ onNavigate }) =
   const renderDashboard = () => {
     switch (user.role) {
       case 'SCHOOL_ADMIN':
-        return <AdminDashboard onNavigate={onNavigate} />;
-      
+        return <AdminDashboard onNavigate={handleNavigate} />;
+
       case 'TEACHER':
-        return <TeacherDashboard onNavigate={onNavigate} />;
-      
+        return <TeacherDashboard onNavigate={handleNavigate} />;
+
       case 'PARENT':
-        return <ParentDashboard onNavigate={onNavigate} />;
-      
+        return <ParentDashboard onNavigate={handleNavigate} />;
+
       case 'STUDENT':
-        return <StudentDashboard onNavigate={onNavigate} />;
-      
+        return <StudentDashboard onNavigate={handleNavigate} />;
+
       default:
-        // Default to parent dashboard for unknown roles
-        return <ParentDashboard onNavigate={onNavigate} />;
+        return <ParentDashboard onNavigate={handleNavigate} />;
     }
   };
 

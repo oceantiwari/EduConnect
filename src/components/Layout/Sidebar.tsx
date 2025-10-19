@@ -1,10 +1,11 @@
 import React from 'react';
-import { 
-  Home, 
-  Users, 
-  Calendar, 
-  MessageSquare, 
-  ShoppingBag, 
+import { useLocation } from 'react-router-dom';
+import {
+  Home,
+  Users,
+  Calendar,
+  MessageSquare,
+  ShoppingBag,
   Bell,
   ClipboardList,
   BarChart3,
@@ -28,6 +29,8 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isOpen, onClose }) => {
   const { user } = useAuth();
+  const location = useLocation();
+  const currentPath = location.pathname.slice(1) || 'dashboard';
 
   if (!user) return null;
 
@@ -109,13 +112,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, onTabChange, isOpen, onClo
                 }}
                 className={`
                   flex items-center gap-3 w-full px-3 py-2 text-left rounded-lg transition-all duration-200
-                  ${activeTab === item.id 
-                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600' 
+                  ${(activeTab === item.id || currentPath === item.id)
+                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }
                 `}
               >
-                <item.icon className={`w-5 h-5 ${activeTab === item.id ? 'text-blue-600' : ''}`} />
+                <item.icon className={`w-5 h-5 ${(activeTab === item.id || currentPath === item.id) ? 'text-blue-600' : ''}`} />
                 <span className="font-medium">{item.label}</span>
               </button>
             ))}

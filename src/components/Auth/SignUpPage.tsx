@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, GraduationCap, Users, BookOpen, CheckCircle, Loader2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface SignUpPageProps {
-  onNavigateToLogin: () => void;
-  onNavigateTo2FA: (userId: string, email: string) => void;
+  onNavigateToLogin?: () => void;
+  onNavigateTo2FA?: (userId: string, email: string) => void;
 }
 
 type UserRole = 'PARENT' | 'TEACHER';
@@ -14,7 +15,8 @@ interface School {
   name: string;
 }
 
-const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin }) => {
+const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin, onNavigateTo2FA }) => {
+  const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [schools, setSchools] = useState<School[]>([]);
   const [loadingSchools, setLoadingSchools] = useState(true);
@@ -60,6 +62,14 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin }) => {
       [e.target.name]: e.target.value
     });
     if (error) setError('');
+  };
+
+  const handleNavigateToLogin = () => {
+    if (onNavigateToLogin) {
+      onNavigateToLogin();
+    } else {
+      navigate('/login');
+    }
   };
 
   const validateForm = (): boolean => {
@@ -190,7 +200,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin }) => {
             </p>
             <div className="space-y-3">
               <button
-                onClick={onNavigateToLogin}
+                onClick={handleNavigateToLogin}
                 className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
               >
                 Return to Login
@@ -449,7 +459,7 @@ const SignUpPage: React.FC<SignUpPageProps> = ({ onNavigateToLogin }) => {
             <p className="text-sm text-gray-600">
               Already have an account?{' '}
               <button
-                onClick={onNavigateToLogin}
+                onClick={handleNavigateToLogin}
                 className="text-blue-600 hover:text-blue-700 font-medium"
               >
                 Sign In

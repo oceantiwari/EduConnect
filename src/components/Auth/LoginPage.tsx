@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, GraduationCap } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface LoginPageProps {
-  onNavigateToSignUp: () => void;
+  onNavigateToSignUp?: () => void;
 }
 
 const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToSignUp }) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -25,6 +27,14 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToSignUp }) => {
       setError('Invalid email or password');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleNavigateToSignUp = () => {
+    if (onNavigateToSignUp) {
+      onNavigateToSignUp();
+    } else {
+      navigate('/signup');
     }
   };
 
@@ -134,7 +144,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onNavigateToSignUp }) => {
           <p className="text-sm text-gray-600">
             Don't have an account?{' '}
             <button
-              onClick={onNavigateToSignUp}
+              onClick={handleNavigateToSignUp}
               className="text-blue-600 hover:text-blue-700 font-medium"
             >
               Sign Up
